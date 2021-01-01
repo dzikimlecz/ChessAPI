@@ -59,7 +59,7 @@ public class CheckAnalyser implements MoveAnalyser {
 		King king = board.getKing((color == Color.WHITE) ? Color.BLACK : Color.WHITE);
 
 		boolean areCloseSquaresBlocked = king.getMoveDeltas().stream().allMatch(set -> {
-			var square = board.getSquare((char) set[0], set[1]);
+			var square = board.square((char) set[0], set[1]);
 			return boardState.isSquareOccupied(square, color) ||
 					boardState.isSquareAttacked(square, color);
 		});

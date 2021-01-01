@@ -40,7 +40,7 @@ public class ChessGame {
 
 	public void handleMove(MoveData data) {
 		if (hasStopped) throw new IllegalStateException("Game is not ongoing");
-		enPassantCastlingValidator.validate(data);
+
 		Map<Piece, Square> variations = data.getVariations();
 		if (variations.isEmpty()) {
 			listener.onIllegalMove();

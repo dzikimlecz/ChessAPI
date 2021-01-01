@@ -5,7 +5,10 @@ import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.moveanalysing.CheckAnalyser;
 import me.dzikimlecz.chessapi.game.moveanalysing.MoveAnalyser;
-import me.dzikimlecz.chessapi.game.moveparsing.*;
+import me.dzikimlecz.chessapi.game.moveparsing.IMoveParser;
+import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
+import me.dzikimlecz.chessapi.game.moveparsing.MoveParser;
+import me.dzikimlecz.chessapi.game.moveparsing.MoveValidator;
 import me.dzikimlecz.chessapi.game.movestoring.GamesData;
 import me.dzikimlecz.chessapi.game.movestoring.ListMoveDatabase;
 import org.jetbrains.annotations.NotNull;
@@ -13,13 +16,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class GamesManager<Key> {
+public class GamesManager<K> {
 	private final GamesData gamesData;
 	private final IMoveParser parser;
 	private final IMoveValidator validator;
 	private final MoveAnalyser analyser;
-	private final Map<Key, ChessGame> games;
-
+	private final Map<K, ChessGame> games;
+	private final Map<ChessGame, GameInfo<?, ?>> gameInfoMap;
 
 	public GamesManager() {
 		gamesData = new GamesData();
@@ -27,29 +30,30 @@ public class GamesManager<Key> {
 		validator = new MoveValidator(gamesData);
 		analyser = new CheckAnalyser(gamesData, new MoveValidator(gamesData));
 		games = new LinkedHashMap<>();
+		gameInfoMap = new LinkedHashMap<>();
 	}
 
-	public void newGame(Key key, ChessEventListener listener) {
-		var game = new ChessGame(new ListMoveDatabase(), listener, gamesData);
-		if(games.containsKey(key))
-			throw new IllegalStateException("Game on this key is already ongoing");
-		games.put(key, game);
+	public void newGame(K gameKey) {
+		var game = new ChessGame(new ListMoveDatabase(), null, gamesData);
+		if(games.containsKey(gameKey))
+			throw new IllegalStateException("Game on this gameKey is already ongoing");
+		games.put(gameKey, game);
 	}
 
-	public void forceClose(Key key) {
-		games.remove(key);
+	public void forceClose(K gameKey) {
+		games.remove(gameKey);
 		System.gc();
 	}
 
-	public boolean close(Key key) {
-		ChessGame game = getGame(key);
+	public boolean close(K gameKey) {
+		ChessGame game = getGame(gameKey);
 		if (game.isOngoing()) return false;
-		forceClose(key);
+		forceClose(gameKey);
 		return true;
 	}
 
-	public void move(Key key, String notation) {
-		ChessGame game = getGame(key);
+	public void move(K gameKey, String notation) {
+		ChessGame game = getGame(gameKey);
 		gamesData.setBoard(game.getBoard());
 		gamesData.setColor(game.getColor());
 		notation = notation.replaceAll("\\s*[^a-h0-8PNSBGRWQHKOo\\-]*", "");
@@ -57,21 +61,30 @@ public class GamesManager<Key> {
 	}
 
 	@NotNull
-	private ChessGame getGame(Key key) {
-		return games.computeIfAbsent(key, key1 -> {
+	private ChessGame getGame(K gameKey) {
+		return games.computeIfAbsent(gameKey, gameKey1 -> {
 			throw new IllegalArgumentException(
-					"There is no game corresponding to key: " + key1.toString()
+					"There is no game corresponding to gameKey: " + gameKey1.toString()
 			);
 		});
 	}
 
-	public ChessPiece[][] read(Key key) {
+	public void attachInfo(K gameKey, @NotNull GameInfo<?, ?> info) {
+		this.gameInfoMap.put(getGame(gameKey), info);
+	}
+
+	public GameInfo<?, ?> getInfo(K gameKey) {
+		return gameInfoMap.get(getGame(gameKey));
+	}
+
+	public ChessPiece[][] read(K gameKey) {
 		Piece[][] pieces = new Piece[8][8];
-		ChessGame game = getGame(key);
+		ChessGame game = games.get(gameKey);
+		if (game == null) return null;
 		var board = game.getBoard();
 		for (int row = 1; row <= 8; row++)
 			for (char line = 'a'; line <= 'h'; line++)
-				pieces[row - 1][line - 'a'] = board.getSquare(line, row).getPiece();
+				pieces[row - 1][line - 'a'] = board.square(line, row).getPiece();
 		return pieces;
 	}
 

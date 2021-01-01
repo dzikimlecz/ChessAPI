@@ -8,6 +8,7 @@ import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.chessapi.game.movestoring.GamesData;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,14 +33,14 @@ public class MoveValidator implements IMoveValidator {
 		for (Piece piece : moveVariations.keySet()) {
 			int status = validStatus(piece, moveVariations.get(piece));
 			if (status == 0) moveVariations.remove(piece);
-			else if (status == -1) moveData.setToFurtherCheck(true);
+			else if (status < 0) moveData.setToFurtherCheck(true);
 		}
 		return moveData;
 	}
 
 	private int validStatus(Piece piece, Square square) {
 
-		if(boardState.isSquareOccupied(square, color)) return 0;
+		if (boardState.isSquareOccupied(square, color)) return 0;
 
 		if (!(piece instanceof Knight)
 				&& boardState.anyPiecesBetween(piece.getSquare(), square))  return 0;
@@ -55,14 +56,13 @@ public class MoveValidator implements IMoveValidator {
 		return 1;
 	}
 
-
-
 	private int validatePawnMove(Pawn pawn, Square square) {
 		final Square pawnSquare = pawn.getSquare();
-		final int yDelta = (color == Color.WHITE) ? -1 : 1;
+		final int yDelta = (color == Color.WHITE) ? 1 : -1;
 		final int startRow = (color == Color.WHITE) ? 2 : 7;
 		final int opponentsFirstFreeRow = (color == Color.BLACK) ? 3 : 6;
-		final Square squareBefore = board.getSquare(square.getLine(), square.getRow() + yDelta);
+		final Square squareBefore = board.square(square.getLine(), square.getRow() + yDelta);
+		//taking move:
 		if (pawnSquare.getLine() != square.getLine()) {
 			Piece piece = square.getPiece();
 			if(piece instanceof King) return 0;
@@ -71,6 +71,7 @@ public class MoveValidator implements IMoveValidator {
 						&& square.getRow() == opponentsFirstFreeRow;
 				return valid ? -1 : 0;
 			}
+			return 1;
 		}
 		else if (Math.abs(pawnSquare.getRow() - square.getRow()) == 2) {
 			boolean valid = squareBefore.getPiece() == null && pawn.getLocation()[1] == startRow;

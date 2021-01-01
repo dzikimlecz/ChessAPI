@@ -60,20 +60,20 @@ public class MoveParser implements IMoveParser {
 	private Map<Piece, Square> parseCastling(String notation, Color color) {
 		boolean isCastlingShort = notation.length() == 3;
 		final int row = (color == Color.WHITE) ? 1 : 8;
-		Piece piece = board.getSquare('e', row).getPiece();
+		Piece piece = board.square('e', row).getPiece();
 		if (!(piece instanceof King)) throw illegalMove;
 		var king = (King) piece;
 
 		char rookLine = (isCastlingShort) ? 'h' : 'a';
-		piece = board.getSquare(rookLine, row).getPiece();
+		piece = board.square(rookLine, row).getPiece();
 		if (!(piece instanceof Rook)) throw illegalMove;
 		var rook = (Rook) piece;
 
 		char newKingLine = (isCastlingShort) ? 'g' : 'c';
 		char newRookLine = (isCastlingShort) ? 'f' : 'd';
 		return new LinkedHashMap<>(Map.of(
-				king, board.getSquare(newKingLine, row),
-				rook, board.getSquare(newRookLine, row)
+				king, board.square(newKingLine, row),
+				rook, board.square(newRookLine, row)
 		));
 	}
 
@@ -85,7 +85,7 @@ public class MoveParser implements IMoveParser {
 		Map<Piece, Square> moves = new HashMap<>();
 		final char line = notation.charAt(1);
 		final int row = notation.charAt(2) - '0';
-		final var square = board.getSquare(line, row);
+		final var square = board.square(line, row);
 		final var pieceType = getPieceType(notation);
 		board.getPiecesMovingTo(line, row, pieceType, color).forEach(e -> moves.put(e, square));
 		return moves;
@@ -104,7 +104,7 @@ public class MoveParser implements IMoveParser {
 		int startRow = (lookingForRow) ? startSpecifier - '0' : endRow;
 		var pieceType = getPieceType(notation);
 		List<? extends Piece> pieces = board.getPiecesMovingTo(endLine, endRow, pieceType, color);
-		Square destination = board.getSquare(endLine, endRow);
+		Square destination = board.square(endLine, endRow);
 		return pieces.stream().filter(e -> {
 			char[] location = e.getLocation();
 			return location[0] == startLine && location[1] == startRow;
@@ -121,8 +121,8 @@ public class MoveParser implements IMoveParser {
 		final int startRow = notation.charAt(2) - '0';
 		final char endLine = notation.charAt(3);
 		final int endRow = notation.charAt(4) - '0';
-		final var startSquare = board.getSquare(startLine, startRow);
-		final var endSquare = board.getSquare(endLine, endRow);
+		final var startSquare = board.square(startLine, startRow);
+		final var endSquare = board.square(endLine, endRow);
 		var piece = startSquare.getPiece();
 		if (piece == null || piece.getClass() != pieceType || piece.getColor() != color)
 			return Map.of();
@@ -132,7 +132,6 @@ public class MoveParser implements IMoveParser {
 	@NotNull
 	private Class<? extends Piece> getPieceType(String notation) {
 		return switch (notation.charAt(0)) {
-			case 'P' -> Pawn.class;
 			case 'N', 'S' -> Knight.class;
 			case 'B', 'G' -> Bishop.class;
 			case 'R', 'W' -> Rook.class;

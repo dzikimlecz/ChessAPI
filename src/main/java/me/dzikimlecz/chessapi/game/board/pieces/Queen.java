@@ -28,13 +28,13 @@ public final class Queen extends TakeablePiece {
 		final int startingRow = currentLocation.getRow();
 		final char startingLine = currentLocation.getLine();
 		//squares on the same row
-		for (int row = 1; row <= 8; row++)
-			if(row != startingRow)
-				deltas.add(new int[]{row - startingRow, 0});
+		for (int rowCursor = 1; rowCursor <= 8; rowCursor++)
+			if(rowCursor != startingRow)
+				deltas.add(new int[]{rowCursor - startingRow, 0});
 		//squares on the same line
-		for (char line = 'a'; line <= 'h'; line++)
-			if(line != startingLine)
-				deltas.add(new int[]{0, line - startingLine});
+		for (char lineCursor = 'a'; lineCursor <= 'h'; lineCursor++)
+			if(lineCursor != startingLine)
+				deltas.add(new int[]{0, lineCursor - startingLine});
 
 		//changes of the coords between squares on diagonals.
 		byte[][] diagonalDeltasSets = {{1,1}, {1,-1}, {-1, 1}, {-1, -1}};
@@ -47,7 +47,7 @@ public final class Queen extends TakeablePiece {
 			while (rowCursor >= 1 && rowCursor <= 8 &&
 					lineCursor >= 1 && lineCursor < 8) {
 				if (lineCursor != startingLine || rowCursor != startingRow)
-					deltas.add(new int[] {lineCursor - startingLine, rowCursor - startingRow});
+					deltas.add(new int[] {lineCursor - startingLine, rowCursor = startingRow});
 				rowCursor += rowDelta;
 				lineCursor += lineDelta;
 			}

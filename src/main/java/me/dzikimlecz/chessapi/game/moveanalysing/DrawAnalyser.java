@@ -62,7 +62,7 @@ public class DrawAnalyser {
 		List<Piece> pieces = new ArrayList<>();
 		for (int row = 1; row <= 8; row++) {
 			for (char line = 'a'; line <= 'h'; line++) {
-				var piece = board.getSquare(line, row).getPiece();
+				var piece = board.square(line, row).getPiece();
 				if (piece != null && piece.getColor() == color)
 					pieces.add(piece);
 			}
@@ -87,7 +87,7 @@ public class DrawAnalyser {
 		List<Piece> blackPieces = new ArrayList<>();
 		for (int row = 1; row <= 8; row++) {
 			for (char line = 'a'; line <= 'h'; line++) {
-				var piece = board.getSquare(line, row).getPiece();
+				var piece = board.square(line, row).getPiece();
 				if (piece != null) {
 					List<Piece> list = (piece.getColor() == WHITE) ? whitePieces : blackPieces;
 					list.add(piece);

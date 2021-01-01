@@ -16,7 +16,7 @@ public class BoardState {
 	}
 
 	public boolean isSquareOccupied(Square square, Color color) {
-		return (square.getPiece() == null) || (square.getPiece().getColor() != color);
+		return (square.getPiece() != null) && (square.getPiece().getColor() == color);
 	}
 
 	public boolean isSquareAttacked(Square square, Color attackedColor) {
@@ -39,8 +39,7 @@ public class BoardState {
 
 		List<Piece> opponentPiecesPinningToKing =
 				board.getPiecesMovingTo(
-						king.getLocation()[0],
-						king.getLocation()[1],
+						king.getSquare(),
 						null,
 						oppositeColor
 				).stream()
@@ -53,8 +52,7 @@ public class BoardState {
 						.collect(Collectors.toList());
 		List<Piece> attackingOpponentPieces =
 				board.getPiecesMovingTo(
-						piece.getLocation()[0],
-						piece.getLocation()[1],
+						piece.getSquare(),
 						null,
 						oppositeColor
 				).stream()
@@ -66,7 +64,7 @@ public class BoardState {
 
 		opponentPiecesPinningToKing.retainAll(attackingOpponentPieces);
 
-		return opponentPiecesPinningToKing.isEmpty();
+		return !opponentPiecesPinningToKing.isEmpty();
 	}
 
 	public boolean anyPiecesBetween(@NotNull Square square, @NotNull Square square1) {

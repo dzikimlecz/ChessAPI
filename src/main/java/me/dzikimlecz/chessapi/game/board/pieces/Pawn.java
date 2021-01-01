@@ -27,20 +27,24 @@ public final class Pawn extends TakeablePiece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		int rowDelta = (color == Color.WHITE) ? 1 : -1;
+		final int startingRow = currentLocation.getRow();
+		final char startingLine = currentLocation.getLine();
+		int lineDelta = (color == Color.WHITE) ? 1 : -1;
 		char colorStartLine = (color == Color.WHITE) ? 'b' : 'g';
 		//normal move one square upfront
-		deltas.add(new int[]{0, rowDelta});
+		deltas.add(new int[]{lineDelta, 0});
 		//taking moves
-		deltas.add(new int[]{1, rowDelta});
-		deltas.add(new int[]{-1, rowDelta});
-		//possible first move (2 squares upfront)
-		if (currentLocation.getLine() == colorStartLine)
-			deltas.add(new int[]{0, 2 * rowDelta});
+		deltas.add(new int[]{lineDelta, 1});
+		deltas.add(new int[]{lineDelta, -1});
+		//possible first move (2 squares upfront
+		if (colorStartLine == startingLine)
+			deltas.add(new int[]{2 * lineDelta, 0});
 	}
 
 	/**
 	 * Changes location of piece to square. Puts itself in it and clears move deltas.
+	 * <br> All subclasses are supposed to override it and call super as the first action!
+	 *
 	 * @param square destination of the move.
 	 */
 	@Override

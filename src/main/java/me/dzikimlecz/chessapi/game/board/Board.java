@@ -43,30 +43,40 @@ public class Board {
 		for (byte row = 0; row < 8; row++)
 			for (byte line = 0; line < 8; line++)
 				theBoard[row][line] = new Square(line, row, Color.values()[(line + row) % 2]);
-		//Puts Pawns
-		for (int x = 0; x < 8; x++) {
-			new Pawn(WHITE, theBoard[1][x]);
-			new Pawn(BLACK, theBoard[6][x]);
-		}
+
 		//Puts every piece on its place
-		List.of(theBoard[0][0], theBoard[0][7])
-				.forEach(square -> new Rook(WHITE, square));
-		List.of(theBoard[7][0], theBoard[7][7])
-				.forEach(square -> new Rook(BLACK, square));
-		List.of(theBoard[0][1], theBoard[0][6])
-				.forEach(square -> new Knight(WHITE, square));
-		List.of(theBoard[7][1], theBoard[7][6])
-				.forEach(square -> new Knight(BLACK, square));
-		List.of(theBoard[0][2], theBoard[0][5])
-				.forEach(square -> new Bishop(WHITE, square));
-		List.of(theBoard[7][2], theBoard[7][5])
-				.forEach(square -> new Bishop(BLACK, square));
-		new Queen(WHITE, theBoard[0][3]);
-		new Queen(BLACK, theBoard[7][3]);
-		this.whiteKing = new King(WHITE, theBoard[0][4]);
-		this.blackKing = new King(BLACK, theBoard[7][4]);
+		this.putPieces();
+		this.whiteKing = (King) square('e', 1).getPiece();
+		this.blackKing = (King) square('e', 8).getPiece();
 		this.boardState = new BoardState(this);
 	}
+
+	private void putPieces() {
+		//Puts Pawns
+		for (char line = 'a'; line <= 'h'; line++) {
+			new Pawn(WHITE, square(line, 2));
+			new Pawn(BLACK, square(line, 7));
+		}
+
+		List.of(square('a', 1), square('h', 1))
+				.forEach(square -> new Rook(WHITE, square));
+		List.of(square('a', 8), square('h', 8))
+				.forEach(square -> new Rook(BLACK, square));
+		List.of(square('b', 1), square('g', 1))
+				.forEach(square -> new Knight(WHITE, square));
+		List.of(square('b', 8), square('g', 8))
+				.forEach(square -> new Knight(BLACK, square));
+		List.of(square('c', 1), square('f', 1))
+				.forEach(square -> new Bishop(WHITE, square));
+		List.of(square('c', 8), square('f', 8))
+				.forEach(square -> new Bishop(BLACK, square));
+		new Queen(WHITE, square('d', 1));
+		new Queen(BLACK, square('d', 8));
+		new King(WHITE, square('e', 1));
+		new King(BLACK, square('e', 8));
+	}
+
+
 
 	/**
 	 * parses from chess notation to coordinates in the array of squares e.g. (a, 1 -> 0, 0)
@@ -76,7 +86,7 @@ public class Board {
 	 */
 	private int[] parseCoords(int row, char line) {
 		var parsedLine = line - 'a';
-		var parsedRow = row - 1;
+		var parsedRow = 8 - row;
 		if (parsedLine < 0 || parsedRow < 0 || parsedLine >= 8 || parsedRow >= 8)
 			throw new IllegalArgumentException(
 					MessageFormat.format("Illegal coordinates: {0}:{1}", line, row)
@@ -90,7 +100,7 @@ public class Board {
 	 * @param row row of the board (1-8)
 	 * @return square on the specified location
 	 */
-	public Square getSquare(char line, int row) {
+	public Square square(char line, int row) {
 		int[] coords = parseCoords(row, line);
 		return theBoard[coords[0]][coords[1]];
 	}
@@ -105,7 +115,7 @@ public class Board {
 		if (delta.length != 2) throw new IllegalArgumentException("Illegal format of delta.");
 		char line = (char) (startingSquare.getLine() + delta[0]);
 		int row = startingSquare.getRow() + delta[1];
-		return getSquare(line, row);
+		return square(line, row);
 	}
 
 	/**
@@ -138,7 +148,7 @@ public class Board {
 		List<Square> squares = new ArrayList<>();
 		for (int y = lesserY; y < biggerY; y++)
 			for (char x = lesserX; x < biggerX; x++)
-				squares.add(this.getSquare(x, y));
+				squares.add(this.square(x, y));
 
 		return List.copyOf(squares);
 	}
@@ -225,7 +235,7 @@ public class Board {
 			for (Square square : squares) {
 				var piece = square.getPiece();
 				String character = (piece == null) ? "   " :
-						piece.getColor().name().substring(0, 2) + piece.toString();
+						piece.getColor().name().charAt(0) + piece.toString() + ' ';
 				stringBuilder.append(character);
 			}
 			stringBuilder.append('\n');

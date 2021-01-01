@@ -15,6 +15,9 @@ public final class Bishop extends TakeablePiece {
 		super(color, startLocation);
 	}
 
+
+
+
 	@Override
 	public String toString() {
 		return "B";
@@ -40,7 +43,7 @@ public final class Bishop extends TakeablePiece {
 			while (rowCursor >= 1 && rowCursor <= 8 &&
 					lineCursor >= 1 && lineCursor < 8) {
 				if (lineCursor != startingLine || rowCursor != startingRow)
-					deltas.add(new int[] {lineCursor - startingLine, rowCursor - startingRow});
+					deltas.add(new int[] {lineCursor - startingLine, rowCursor = startingRow});
 				rowCursor += rowDelta;
 				lineCursor += lineDelta;
 			}

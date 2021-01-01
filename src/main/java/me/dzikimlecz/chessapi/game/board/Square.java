@@ -32,7 +32,7 @@ public class Square {
 	 */
 	public Square(int line, int row, Color color) {
 		this.line = (char) (line + 'a');
-		this.row = row + 1;
+		this.row = 8 - row;
 		this.color = color;
 	}
 
