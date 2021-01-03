@@ -29,7 +29,6 @@ public class MoveParser implements IMoveParser {
 	public MoveData parse(String notation) {
 		board = data.getBoard();
 		Color color = data.getColor();
-		notation = notation.replaceAll("\\s", "");
 		Map<Piece, Square> variations = parseToMap(notation, color);
 		return new MoveData(notation, variations, color);
 	}
@@ -132,6 +131,7 @@ public class MoveParser implements IMoveParser {
 	@NotNull
 	private Class<? extends Piece> getPieceType(String notation) {
 		return switch (notation.charAt(0)) {
+			case 'P' -> Pawn.class;
 			case 'N', 'S' -> Knight.class;
 			case 'B', 'G' -> Bishop.class;
 			case 'R', 'W' -> Rook.class;
