@@ -84,7 +84,10 @@ public class ChessGame {
 		return !hasStopped;
 	}
 
-	public void closeAndDraw() {
-		listener.onDraw(DrawReason.PLAYERS_DECISION);
+	public void requestDraw() {
+		if (listener.onDrawRequest()) {
+			listener.onDraw(DrawReason.PLAYERS_DECISION);
+			hasStopped = true;
+		}
 	}
 }

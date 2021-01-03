@@ -8,4 +8,5 @@ public interface ChessEventListener {
 	default void onMoveHandled() {}
 	default void onCheck(Color checked) {}
 	default void onIllegalMove() {}
+	default boolean onDrawRequest() {return false;}
 }

@@ -28,13 +28,13 @@ public class GamesManager<K> {
 		gamesData = new GamesData();
 		parser = new MoveParser(gamesData);
 		validator = new MoveValidator(gamesData);
-		analyser = new CheckAnalyser(gamesData, new MoveValidator(gamesData));
+		analyser = new CheckAnalyser(gamesData, validator);
 		games = new LinkedHashMap<>();
 		gameInfoMap = new LinkedHashMap<>();
 	}
 
-	public void newGame(K gameKey) {
-		var game = new ChessGame(new ListMoveDatabase(), null, gamesData);
+	public void newGame(K gameKey, ChessEventListener listener) {
+		var game = new ChessGame(new ListMoveDatabase(), listener, gamesData);
 		if(games.containsKey(gameKey))
 			throw new IllegalStateException("Game on this gameKey is already ongoing");
 		games.put(gameKey, game);
@@ -88,4 +88,7 @@ public class GamesManager<K> {
 		return pieces;
 	}
 
+	public void requestDraw(K gameKey) {
+		getGame(gameKey).requestDraw();
+	}
 }
