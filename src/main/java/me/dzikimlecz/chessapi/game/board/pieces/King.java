@@ -26,15 +26,15 @@ public final class King extends Piece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		final int startingRow = currentLocation.getRow();
-		final char startingLine = currentLocation.getLine();
-		for (int rowCursor = startingRow - 1;
-		     rowCursor <= 8 && rowCursor <= startingRow + 1; rowCursor++) {
-			for (int lineCursor = startingLine - 1;
-			     lineCursor <= 'h' && lineCursor <= startingLine + 1; lineCursor++) {
-				if (rowCursor < 1 || lineCursor < 'a') continue;
-				if (rowCursor != startingRow || lineCursor != startingLine)
-					deltas.add(new int[]{rowCursor - startingRow, lineCursor - startingLine});
+		var row = currentLocation.getRow();
+		var line = currentLocation.getLine();
+		for (int rowDelta = -1; rowDelta <= 1; rowDelta++) {
+			var destinationRow = row + rowDelta;
+			if (destinationRow < 1 || destinationRow > 8) continue;
+			for (int lineDelta = -1; lineDelta <= 1; lineDelta++) {
+				char destinationLine = (char) (line + lineDelta);
+				if (destinationLine < 'a' || destinationLine > 'h') continue;
+				deltas.add(new int[]{lineDelta, rowDelta});
 			}
 		}
 	}

@@ -6,9 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
 import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
@@ -45,7 +43,7 @@ public class Board {
 				theBoard[row][line] = new Square(line, row, Color.values()[(line + row) % 2]);
 
 		//Puts every piece on its place
-		this.putPieces();
+ 		this.putPieces();
 		this.whiteKing = (King) square('e', 1).getPiece();
 		this.blackKing = (King) square('e', 8).getPiece();
 		this.boardState = new BoardState(this);
@@ -154,29 +152,29 @@ public class Board {
 	}
 
 	/**
-	 * @param square destination of hypothetical moves
+	 * @param line line of destination of hypothetical moves
+	 * @param row row of destination of hypothetical moves
 	 * @param type type of pieces to be moved
 	 * @param color color of pieces to be moved
 	 * @return list off all pieces that can move to the specified square and are of the specified
 	 * type and
 	 * color
 	 */
-	public List<? extends Piece> getPiecesMovingTo(Square square,
+	public List<? extends Piece> getPiecesMovingTo(char line,
+	                                               int row,
 	                                               @Nullable Class<? extends Piece> type,
 	                                               @NotNull Color color) {
-		return getPiecesMovingTo(square.getLine(), square.getRow(), type, color);
+		return getPiecesMovingTo(square(line, row), type, color);
 	}
 
 	/**
-	 * @param line line of destination of hypothetical moves
-	 * @param row row of destination of hypothetical moves
+	 * @param square destination of hypothetical moves
 	 * @param type type of pieces to be moved
 	 * @param color color of pieces to be moved
 	 * @return list off all pieces that can move to the specified location and are of the specified
 	 * type and color
 	 */
-	public List<? extends Piece> getPiecesMovingTo(char line,
-	                                               int row,
+	public List<? extends Piece> getPiecesMovingTo(Square square,
 	                                               @Nullable Class<? extends Piece> type,
 	                                               @NotNull Color color) {
 		List<Piece> pieces = new ArrayList<>();
@@ -188,25 +186,32 @@ public class Board {
 					Rook.class,
 					Queen.class,
 					King.class
-			).forEach(clazz -> pieces.addAll(getPiecesMovingTo(line, row, clazz, color)));
+			).forEach(clazz -> pieces.addAll(getPiecesMovingTo(square, clazz, color)));
 		} else if (type == null) {
 			List.of(
 					Knight.class,
 					Bishop.class,
 					Rook.class,
 					Queen.class
-			).forEach(clazz -> pieces.addAll(getPiecesMovingTo(line, row, clazz, color)));
+			).forEach(clazz -> pieces.addAll(getPiecesMovingTo(square, clazz, color)));
 		} else {
-			Arrays.stream(theBoard).forEach(boardRow -> Arrays.stream(boardRow)
-					.map(Square::getPiece)
-					.filter(Objects::nonNull)
-					.filter(piece -> piece.getColor() == color && piece.getClass() == type)
-					.filter(piece -> piece.getMoveDeltas().stream().anyMatch(set -> {
-						        boolean lineMatch = piece.getLocation()[0] + set[0] == line;
-						        boolean rowMatch = piece.getLocation()[1] + set[1] == row;
-						        return lineMatch && rowMatch;
-					        })
-					).forEach(pieces::add));
+			for (int rowCursor = 1; rowCursor <= 8; rowCursor++) {
+				for (char lineCursor = 'a'; lineCursor <= 'h'; lineCursor++) {
+					var squareCursor = square(lineCursor, rowCursor);
+					Piece piece = squareCursor.getPiece();
+					if (piece == null) continue;
+					if (piece.getColor() == color && piece.getClass() == type) {
+						for (int[] deltas : piece.getMoveDeltas()) {
+							try {
+								if (getSquareByDelta(squareCursor, deltas) == square) {
+									pieces.add(piece);
+									break;
+								}
+							} catch(Exception ignored) {}
+						}
+					}
+				}
+			}
 		}
 
 		return List.copyOf(pieces);

@@ -37,13 +37,13 @@ public final class Bishop extends TakeablePiece {
 			final byte rowDelta = diagonalDeltas[0];
 			final byte lineDelta = diagonalDeltas[1];
 			int rowCursor = startingRow;
-			int lineCursor = startingLine;
+			char lineCursor = startingLine;
 
 			//iterates through all of squares on the diagonal
 			while (rowCursor >= 1 && rowCursor <= 8 &&
-					lineCursor >= 1 && lineCursor < 8) {
+					lineCursor >= 'a' && lineCursor <= 'h') {
 				if (lineCursor != startingLine || rowCursor != startingRow)
-					deltas.add(new int[] {lineCursor - startingLine, rowCursor = startingRow});
+					deltas.add(new int[] {lineCursor - startingLine, rowCursor - startingRow});
 				rowCursor += rowDelta;
 				lineCursor += lineDelta;
 			}

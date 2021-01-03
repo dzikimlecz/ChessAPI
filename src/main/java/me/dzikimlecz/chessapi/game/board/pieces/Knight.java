@@ -33,10 +33,10 @@ public final class Knight extends TakeablePiece {
 		byte[][] deltasSets =
 				{{-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}};
 		for (byte[] deltas: deltasSets) {
-			int rowCursor = startingRow + deltas[0];
-			int lineCursor = startingLine + deltas[1];
-			if (lineCursor >= 'a' && lineCursor <= 'h' && rowCursor >= 1 && rowCursor <= 8)
-				this.deltas.add(new int[] {lineCursor - startingLine, rowCursor - startingRow});
+			int lineCursor = startingLine + deltas[0];
+			int rowCursor = startingRow + deltas[1];
+			if (lineCursor < 'a' || lineCursor > 'h' || rowCursor < 1 || rowCursor > 8) continue;
+			this.deltas.add(new int[] {lineCursor - startingLine, rowCursor - startingRow});
 		}
 	}
 }

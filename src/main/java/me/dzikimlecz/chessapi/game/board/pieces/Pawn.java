@@ -27,18 +27,23 @@ public final class Pawn extends TakeablePiece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		final int startingRow = currentLocation.getRow();
-		final char startingLine = currentLocation.getLine();
-		int lineDelta = (color == Color.WHITE) ? 1 : -1;
-		char colorStartLine = (color == Color.WHITE) ? 'b' : 'g';
-		//normal move one square upfront
-		deltas.add(new int[]{lineDelta, 0});
-		//taking moves
-		deltas.add(new int[]{lineDelta, 1});
-		deltas.add(new int[]{lineDelta, -1});
-		//possible first move (2 squares upfront
-		if (colorStartLine == startingLine)
-			deltas.add(new int[]{2 * lineDelta, 0});
+		final int row = currentLocation.getRow();
+		final char line = currentLocation.getLine();
+		int rowDelta = (color == Color.WHITE) ? 1 : -1;
+		int colorStartRow = (color == Color.WHITE) ? 2 : 7;
+		int destinationRow = row + rowDelta;
+		if (destinationRow >= 1 && destinationRow <= 8) {
+			//normal move one square upfront
+			deltas.add(new int[] {0, rowDelta});
+			//taking moves
+			if (line < 'h')
+				deltas.add(new int[] { 1, rowDelta});
+			if (line > 'a')
+				deltas.add(new int[] {-1, rowDelta});
+			//possible first move (2 squares upfront
+			if (colorStartRow == row)
+				deltas.add(new int[]{0, 2 * rowDelta});
+		}
 	}
 
 	/**
@@ -49,8 +54,8 @@ public final class Pawn extends TakeablePiece {
 	 */
 	@Override
 	public void moveTo(Square square) {
+		if (currentLocation != null) movesCount++;
 		super.moveTo(square);
-		movesCount++;
 	}
 
 	public int movesCount() {

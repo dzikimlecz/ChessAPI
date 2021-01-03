@@ -30,10 +30,10 @@ public final class Rook extends TakeablePiece {
 		//squares on the same row
 		for (int rowCursor = 1; rowCursor <= 8; rowCursor++)
 			if (rowCursor != startingRow)
-				deltas.add(new int[] {rowCursor - startingRow, 0});
+				deltas.add(new int[] {0, rowCursor - startingRow});
 		//squares on the same line
 		for (char lineCursor = 'a'; lineCursor <= 'h'; lineCursor++)
 			if (lineCursor != startingLine)
-				deltas.add(new int[] {0, lineCursor - startingLine});
+				deltas.add(new int[] {lineCursor - startingLine, 0});
 	}
 }
