@@ -41,17 +41,21 @@ public class ChessGame {
 	public void handleMove(MoveData data) {
 		if (hasStopped) throw new IllegalStateException("Game is not ongoing");
 
+		if (data.toFurtherCheck()) enPassantCastlingValidator.validate(data);
 		Map<Piece, Square> variations = data.getVariations();
 		if (variations.isEmpty()) {
 			listener.onIllegalMove();
 			return;
 		}
+
 		for (Piece piece : variations.keySet()) {
 			var targetSquare = variations.get(piece);
 			var targetSquarePiece = targetSquare.getPiece();
-			if (!(targetSquarePiece instanceof Takeable))
-				throw new IllegalStateException("Cannot take non-takeable piece.");
-			((Takeable) targetSquarePiece).beTaken();
+			if (targetSquarePiece != null) {
+				if (!(targetSquarePiece instanceof Takeable))
+					throw new IllegalStateException("Cannot take non-takeable piece.");
+				((Takeable) targetSquarePiece).beTaken();
+			}
 			piece.moveTo(targetSquare);
 		}
 		moveDatabase.put(data);
