@@ -25,8 +25,8 @@ public final class Rook extends TakeablePiece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		final int startingRow = currentLocation.getRow();
-		final char startingLine = currentLocation.getLine();
+		final int startingRow = currentLocation.row();
+		final char startingLine = currentLocation.line();
 		//squares on the same row
 		for (int rowCursor = 1; rowCursor <= 8; rowCursor++)
 			if (rowCursor != startingRow)

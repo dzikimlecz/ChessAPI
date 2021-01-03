@@ -22,7 +22,7 @@ public class EnPassantCastlingValidator implements IMoveValidator {
 	}
 
 	public void validateEnPassant(MoveData data) {
-		var opponentColor = data.getColor().opposite();
+		var opponentColor = data.color().opposite();
 		var variations = data.getVariations();
 		var lastMove = moveDatabase.getLastMove(opponentColor);
 		var lastMoveVariations = lastMove.getVariations();
@@ -37,12 +37,12 @@ public class EnPassantCastlingValidator implements IMoveValidator {
 		var destinationSquare = variations.get(variations.keySet().stream().findFirst().get());
 		if (
 				lastMovedPiece.movesCount() != 1
-				|| lastMovedPiece.getSquare().getLine() != destinationSquare.getLine()
+				|| lastMovedPiece.square().line() != destinationSquare.line()
 		) variations.clear();
 	}
 
 	public void validateCastling(MoveData data) {
-		var moves = moveDatabase.getAllMoves(data.getColor());
+		var moves = moveDatabase.getAllMoves(data.color());
 		var variations = data.getVariations();
 		for (MoveData moveData : moves) {
 			for (Piece piece : variations.keySet()) {

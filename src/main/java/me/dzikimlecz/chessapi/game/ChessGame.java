@@ -34,7 +34,7 @@ public class ChessGame {
 		enPassantCastlingValidator = new EnPassantCastlingValidator(moveDatabase);
 	}
 
-	public Board getBoard() {
+	public Board board() {
 		return board;
 	}
 
@@ -50,7 +50,7 @@ public class ChessGame {
 
 		for (Piece piece : variations.keySet()) {
 			var targetSquare = variations.get(piece);
-			var targetSquarePiece = targetSquare.getPiece();
+			var targetSquarePiece = targetSquare.piece();
 			if (targetSquarePiece != null) {
 				if (!(targetSquarePiece instanceof Takeable))
 					throw new IllegalStateException("Cannot take non-takeable piece.");
@@ -60,11 +60,11 @@ public class ChessGame {
 		}
 		moveDatabase.put(data);
 		gamesData.setColor(moveDatabase.turnColor());
-		var notation = data.getNotation();
-		if (notation.contains("+")) listener.onCheck(gamesData.getColor());
+		var notation = data.notation();
+		if (notation.contains("+")) listener.onCheck(gamesData.color());
 		else if (notation.contains("#")) {
 			this.hasStopped = false;
-			listener.onMate(gamesData.getColor());
+			listener.onMate(gamesData.color());
 		} else {
 			var drawReason = drawAnalyser.lookForDraw();
 			if (drawReason != null) {
@@ -76,7 +76,7 @@ public class ChessGame {
 		listener.onMoveHandled();
 	}
 
-	public Color getColor() {
+	public Color color() {
 		return moveDatabase.turnColor();
 	}
 
@@ -89,5 +89,9 @@ public class ChessGame {
 			listener.onDraw(DrawReason.PLAYERS_DECISION);
 			hasStopped = true;
 		}
+	}
+
+	public ChessEventListener listener() {
+		return listener;
 	}
 }

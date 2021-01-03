@@ -24,8 +24,8 @@ public class MoveValidator implements IMoveValidator {
 
 	@Override
 	public MoveData validate(MoveData moveData) {
-		board = gamesData.getBoard();
-		color = gamesData.getColor();
+		board = gamesData.board();
+		color = gamesData.color();
 		boardState = board.getState();
 		Map<Piece, Square> moveVariations = moveData.getVariations();
 
@@ -45,7 +45,7 @@ public class MoveValidator implements IMoveValidator {
 		if (boardState.isSquareOccupied(square, color)) return 0;
 
 		if (!(piece instanceof Knight)
-				&& boardState.anyPiecesBetween(piece.getSquare(), square))  return 0;
+				&& boardState.anyPiecesBetween(piece.square(), square))  return 0;
 
 		if (!(piece instanceof King)
 				&& boardState.isPieceDefendingKing(piece))  return 0;
@@ -59,24 +59,24 @@ public class MoveValidator implements IMoveValidator {
 	}
 
 	private int validatePawnMove(Pawn pawn, Square square) {
-		final Square pawnSquare = pawn.getSquare();
+		final Square pawnSquare = pawn.square();
 		final int rowDelta = (color == Color.WHITE) ? 1 : -1;
 		final int opponentsFirstFreeRow = (color == Color.BLACK) ? 3 : 6;
-		final Square squareBefore = board.square(square.getLine(), square.getRow() - rowDelta);
+		final Square squareBefore = board.square(square.line(), square.row() - rowDelta);
 		//taking move:
-		if (pawnSquare.getLine() != square.getLine()) {
-			Piece piece = square.getPiece();
+		if (pawnSquare.line() != square.line()) {
+			Piece piece = square.piece();
 			if(piece instanceof King) return 0;
 			if (piece == null) {
-				boolean valid = squareBefore.getPiece() instanceof Pawn
-						&& squareBefore.getPiece().getColor() == pawn.getColor().opposite()
-						&& square.getRow() == opponentsFirstFreeRow;
+				boolean valid = squareBefore.piece() instanceof Pawn
+						&& squareBefore.piece().color() == pawn.color().opposite()
+						&& square.row() == opponentsFirstFreeRow;
 				return valid ? -1 : 0;
 			}
 			return 1;
 		}
-		else if (Math.abs(pawnSquare.getRow() - square.getRow()) == 2) {
-			boolean valid = squareBefore.getPiece() == null;
+		else if (Math.abs(pawnSquare.row() - square.row()) == 2) {
+			boolean valid = squareBefore.piece() == null;
 			if (!valid) return 0;
 		}
 		return 1;
@@ -87,8 +87,8 @@ public class MoveValidator implements IMoveValidator {
 		var pieces = map.keySet().toArray();
 		King king = (King) pieces[0];
 		Rook rook = (Rook) pieces[1];
-		Square kingSquare = king.getSquare();
-		Square rookSquare = rook.getSquare();
+		Square kingSquare = king.square();
+		Square rookSquare = rook.square();
 		boolean invalid = board.squaresBetween(kingSquare, map.get(king), true)
 				.stream().anyMatch(square -> boardState.isSquareAttacked(square, color))
 				|| boardState.anyPiecesBetween(kingSquare, rookSquare);

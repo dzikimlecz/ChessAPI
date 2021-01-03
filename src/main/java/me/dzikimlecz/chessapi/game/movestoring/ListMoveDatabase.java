@@ -68,7 +68,7 @@ public class ListMoveDatabase implements MoveDatabase {
 
 	@Override
 	public void put(MoveData data) {
-		if (data.getColor() != turnColor)
+		if (data.color() != turnColor)
 			throw new IllegalStateException("Data turn color does not match expected move color.");
 		List<MoveData> list = (turnColor == WHITE) ? whiteMoves : blackMoves;
 		list.add(data);

@@ -16,50 +16,50 @@ public class BoardState {
 	}
 
 	public boolean isSquareOccupied(Square square, Color color) {
-		return (square.getPiece() != null) && (square.getPiece().getColor() == color);
+		return (square.piece() != null) && (square.piece().color() == color);
 	}
 
 	public boolean isSquareAttacked(Square square, Color attackedColor) {
 		Color oppositeColor = attackedColor.opposite();
 		return board.getPiecesMovingTo(
-				square.getLine(),
-				square.getRow(),
+				square.line(),
+				square.row(),
 				null,
 				oppositeColor
 		).stream().anyMatch(
 				opponentPiece -> opponentPiece.getClass() == Knight.class
-						|| !anyPiecesBetween(square, opponentPiece.getSquare())
+						|| !anyPiecesBetween(square, opponentPiece.square())
 		);
 	}
 
 	public boolean isPieceDefendingKing(Piece piece) {
-		Color color = piece.getColor();
+		Color color = piece.color();
 		King king = board.getKing(color);
 		Color oppositeColor = color.opposite();
 
 		List<Piece> opponentPiecesPinningToKing =
 				board.getPiecesMovingTo(
-						king.getSquare(),
+						king.square(),
 						null,
 						oppositeColor
 				).stream()
 						.filter(opponentPiece -> opponentPiece.getClass() != Knight.class)
 						.filter(opponentPiece ->
 								        countOfPiecesBetween(
-										        opponentPiece.getSquare(),
-										        king.getSquare()
+										        opponentPiece.square(),
+										        king.square()
 								        ) == 1)
 						.collect(Collectors.toList());
 		List<Piece> attackingOpponentPieces =
 				board.getPiecesMovingTo(
-						piece.getSquare(),
+						piece.square(),
 						null,
 						oppositeColor
 				).stream()
 						.filter(opponentPiece -> opponentPiece.getClass() != Knight.class)
 						.filter(opponentPiece -> !anyPiecesBetween(
-								piece.getSquare(),
-								opponentPiece.getSquare()))
+								piece.square(),
+								opponentPiece.square()))
 						.collect(Collectors.toList());
 
 		opponentPiecesPinningToKing.retainAll(attackingOpponentPieces);
@@ -69,11 +69,11 @@ public class BoardState {
 
 	public boolean anyPiecesBetween(@NotNull Square square, @NotNull Square square1) {
 		return board.squaresBetween(square, square1).stream()
-				.anyMatch(square2 -> square2.getPiece() != null);
+				.anyMatch(square2 -> square2.piece() != null);
 	}
 
 	public int countOfPiecesBetween(@NotNull Square square, @NotNull Square square1) {
 		return (int) board.squaresBetween(square, square1).stream()
-				.filter(square2 -> square2.getPiece() != null).count();
+				.filter(square2 -> square2.piece() != null).count();
 	}
 }

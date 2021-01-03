@@ -54,10 +54,14 @@ public class GamesManager<K> {
 
 	public void move(K gameKey, String notation) {
 		ChessGame game = getGame(gameKey);
-		gamesData.setBoard(game.getBoard());
-		gamesData.setColor(game.getColor());
-		notation = notation.replaceAll("\\s*[^a-h0-8PNSBGRWQHKOo\\-]*", "");
-		game.handleMove(parser.parse(notation).validate(validator).analyse(analyser));
+		gamesData.setBoard(game.board());
+		gamesData.setColor(game.color());
+		notation = notation.replaceAll("[^a-hOo0-8PNSBGRWQHK\\-]*", "");
+		try {
+			game.handleMove(parser.parse(notation).validate(validator).analyse(analyser));
+		} catch(Exception e) {
+			game.listener().onIllegalMove();
+		}
 	}
 
 	@NotNull
@@ -81,10 +85,10 @@ public class GamesManager<K> {
 		Piece[][] pieces = new Piece[8][8];
 		ChessGame game = games.get(gameKey);
 		if (game == null) return null;
-		var board = game.getBoard();
+		var board = game.board();
 		for (int row = 1; row <= 8; row++)
 			for (char line = 'a'; line <= 'h'; line++)
-				pieces[row - 1][line - 'a'] = board.square(line, row).getPiece();
+				pieces[row - 1][line - 'a'] = board.square(line, row).piece();
 		return pieces;
 	}
 

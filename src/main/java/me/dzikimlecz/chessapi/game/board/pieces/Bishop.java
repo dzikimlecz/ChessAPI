@@ -28,8 +28,8 @@ public final class Bishop extends TakeablePiece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		final int startingRow = currentLocation.getRow();
-		final char startingLine = currentLocation.getLine();
+		final int startingRow = currentLocation.row();
+		final char startingLine = currentLocation.line();
 
 		//changes of the coords between squares on diagonals.
 		byte[][] diagonalDeltasSets = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};

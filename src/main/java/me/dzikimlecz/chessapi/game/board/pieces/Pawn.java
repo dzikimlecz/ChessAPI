@@ -27,8 +27,8 @@ public final class Pawn extends TakeablePiece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		final int row = currentLocation.getRow();
-		final char line = currentLocation.getLine();
+		final int row = currentLocation.row();
+		final char line = currentLocation.line();
 		int rowDelta = (color == Color.WHITE) ? 1 : -1;
 		int colorStartRow = (color == Color.WHITE) ? 2 : 7;
 		int destinationRow = row + rowDelta;

@@ -45,7 +45,7 @@ public class MoveData {
 		return analyzer.analyse(this);
 	}
 
-	public String getNotation() {
+	public String notation() {
 		return notation;
 	}
 
@@ -57,7 +57,7 @@ public class MoveData {
 		return variations;
 	}
 
-	public Color getColor() {
+	public Color color() {
 		return color;
 	}
 

@@ -53,7 +53,7 @@ public class Square {
 	 * @return piece lying on the square if present, null otherwise.
 	 */
 	@Nullable
-	public Piece getPiece() {
+	public Piece piece() {
 		return containedPiece;
 	}
 
@@ -61,7 +61,7 @@ public class Square {
 	 * Gets line of the square (a-h)
 	 * @return line on which square is located
 	 */
-	public char getLine() {
+	public char line() {
 		return line;
 	}
 
@@ -69,7 +69,7 @@ public class Square {
 	 * Gets row of the square (1-8)
 	 * @return row on which square is located
 	 */
-	public int getRow() {
+	public int row() {
 		return row;
 	}
 

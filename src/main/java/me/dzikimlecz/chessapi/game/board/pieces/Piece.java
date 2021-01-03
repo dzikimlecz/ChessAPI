@@ -50,6 +50,7 @@ public abstract class Piece extends ChessPiece implements Movable {
 		boolean pieceMoved = square.putPiece(this);
 		if (!pieceMoved)
 			throw new IllegalArgumentException("Could not move to square: " + square.toString());
+		if (currentLocation != null) currentLocation.putPiece(null);
 		currentLocation = square;
 		deltas.clear();
 		updateDeltas();
@@ -66,15 +67,15 @@ public abstract class Piece extends ChessPiece implements Movable {
 	 * @return 2-elements array of location: {line, row}
 	 */
 	@Override
-	public char[] getLocation() {
-		return new char[] {currentLocation.getLine(), (char) currentLocation.getRow()};
+	public char[] location() {
+		return new char[] {currentLocation.line(), (char) currentLocation.row()};
 	}
 
 	/**
 	 * Gets square being current location of the object.
 	 * @return square in which the piece is currently located.
 	 */
-	public Square getSquare() {
+	public Square square() {
 		return currentLocation;
 	}
 
@@ -85,7 +86,7 @@ public abstract class Piece extends ChessPiece implements Movable {
 	 * change of a row.
 	 */
 	@Override
-	public List<int[]> getMoveDeltas() {
+	public List<int[]> moveDeltas() {
 		return List.copyOf(deltas);
 	}
 }

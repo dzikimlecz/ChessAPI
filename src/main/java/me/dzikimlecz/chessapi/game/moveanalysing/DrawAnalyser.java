@@ -36,7 +36,7 @@ public class DrawAnalyser {
 
 	@Nullable
 	public DrawReason lookForDraw() {
-		this.board = gamesData.getBoard();
+		this.board = gamesData.board();
 		whiteMoves = moveDatabase.getAllMoves(WHITE);
 		blackMoves = moveDatabase.getAllMoves(BLACK);
 		if (noMovesWithPawnDuring50Moves()) return DrawReason.FIFTY_MOVES_WITHOUT_PAWN;
@@ -51,6 +51,7 @@ public class DrawAnalyser {
 	// ideas than just store state of the board in MoveDatabase but i guess it would be
 	// memory-consuming. Will be fixed after memory tests and optimization.
 	private boolean triplePositionRepeat() {
+		if (whiteMoves.size() < 4) return false;
 		var whites = whiteMoves.subList(whiteMoves.size() - 3, whiteMoves.size());
 		var blacks = blackMoves.subList(blackMoves.size() - 3, blackMoves.size());
 		return whites.stream().distinct().count() == 1 && blacks.stream().distinct().count() == 1;
@@ -58,19 +59,19 @@ public class DrawAnalyser {
 
 	private boolean staleMate() {
 		if (whiteMoves.size() < 10) return false;
-		Color color = gamesData.getColor();
+		Color color = gamesData.color();
 		List<Piece> pieces = new ArrayList<>();
 		for (int row = 1; row <= 8; row++) {
 			for (char line = 'a'; line <= 'h'; line++) {
-				var piece = board.square(line, row).getPiece();
-				if (piece != null && piece.getColor() == color)
+				var piece = board.square(line, row).piece();
+				if (piece != null && piece.color() == color)
 					pieces.add(piece);
 			}
 		}
 		Map<Piece, Square> possibleResponses = new HashMap<>();
 		for (Piece piece : pieces) {
-			var pieceSquare = piece.getSquare();
-			var moveDeltas = piece.getMoveDeltas();
+			var pieceSquare = piece.square();
+			var moveDeltas = piece.moveDeltas();
 			for (int[] moveDelta : moveDeltas)
 				possibleResponses.put(piece, board.getSquareByDelta(pieceSquare, moveDelta));
 		}
@@ -87,9 +88,9 @@ public class DrawAnalyser {
 		List<Piece> blackPieces = new ArrayList<>();
 		for (int row = 1; row <= 8; row++) {
 			for (char line = 'a'; line <= 'h'; line++) {
-				var piece = board.square(line, row).getPiece();
+				var piece = board.square(line, row).piece();
 				if (piece != null) {
-					List<Piece> list = (piece.getColor() == WHITE) ? whitePieces : blackPieces;
+					List<Piece> list = (piece.color() == WHITE) ? whitePieces : blackPieces;
 					list.add(piece);
 				}
 			}
@@ -116,7 +117,7 @@ public class DrawAnalyser {
 				Optional<Piece> blackBishopOpt =
 						blacks.stream().filter(piece -> piece instanceof Bishop).findAny();
 				if (blackBishopOpt.isEmpty()) return false;
-				return blackBishopOpt.get().getColor() == whiteBishopOpt.get().getColor();
+				return blackBishopOpt.get().color() == whiteBishopOpt.get().color();
 			}
 			return false;
 		}
@@ -135,12 +136,12 @@ public class DrawAnalyser {
 				.filter(piece -> piece instanceof Pawn)
 				.allMatch(pawn -> {
 					Map<Piece, Square> variations = new HashMap<>();
-					pawn.getMoveDeltas()
+					pawn.moveDeltas()
 							.forEach(delta -> variations.put(
-									pawn, board.getSquareByDelta(pawn.getSquare(), delta))
+									pawn, board.getSquareByDelta(pawn.square(), delta))
 							);
 					return validator.validate(
-							new MoveData("#deadposition", variations, pawn.getColor()))
+							new MoveData("#deadposition", variations, pawn.color()))
 							.getVariations().isEmpty();
 				});
 	}

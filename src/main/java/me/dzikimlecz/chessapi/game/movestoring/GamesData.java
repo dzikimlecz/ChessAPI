@@ -15,11 +15,11 @@ public class GamesData {
 		this.color = color;
 	}
 
-	public Board getBoard() {
+	public Board board() {
 		return board;
 	}
 
-	public Color getColor() {
+	public Color color() {
 		return color;
 	}
 }

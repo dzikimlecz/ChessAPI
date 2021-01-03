@@ -14,7 +14,7 @@ public interface Movable {
 	 * @return List of 2-elements arrays of first element being change of the line, and second
 	 * change of a row.
 	 */
-	List<int[]> getMoveDeltas();
+	List<int[]> moveDeltas();
 
 	/**
 	 * Changes location of piece to square and puts i.

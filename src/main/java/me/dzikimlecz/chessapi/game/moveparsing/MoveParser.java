@@ -27,8 +27,8 @@ public class MoveParser implements IMoveParser {
 	}
 
 	public MoveData parse(String notation) {
-		board = data.getBoard();
-		Color color = data.getColor();
+		board = data.board();
+		Color color = data.color();
 		Map<Piece, Square> variations = parseToMap(notation, color);
 		return new MoveData(notation, variations, color);
 	}
@@ -59,12 +59,12 @@ public class MoveParser implements IMoveParser {
 	private Map<Piece, Square> parseCastling(String notation, Color color) {
 		boolean isCastlingShort = notation.length() == 3;
 		final int row = (color == Color.WHITE) ? 1 : 8;
-		Piece piece = board.square('e', row).getPiece();
+		Piece piece = board.square('e', row).piece();
 		if (!(piece instanceof King)) throw illegalMove;
 		var king = (King) piece;
 
 		char rookLine = (isCastlingShort) ? 'h' : 'a';
-		piece = board.square(rookLine, row).getPiece();
+		piece = board.square(rookLine, row).piece();
 		if (!(piece instanceof Rook)) throw illegalMove;
 		var rook = (Rook) piece;
 
@@ -105,7 +105,7 @@ public class MoveParser implements IMoveParser {
 		List<? extends Piece> pieces = board.getPiecesMovingTo(endLine, endRow, pieceType, color);
 		Square destination = board.square(endLine, endRow);
 		return pieces.stream().filter(e -> {
-			char[] location = e.getLocation();
+			char[] location = e.location();
 			return location[0] == startLine && location[1] == startRow;
 		}).collect(Collectors.toMap(e -> e, e -> destination, (a, b) -> b));
 	}
@@ -122,8 +122,8 @@ public class MoveParser implements IMoveParser {
 		final int endRow = notation.charAt(4) - '0';
 		final var startSquare = board.square(startLine, startRow);
 		final var endSquare = board.square(endLine, endRow);
-		var piece = startSquare.getPiece();
-		if (piece == null || piece.getClass() != pieceType || piece.getColor() != color)
+		var piece = startSquare.piece();
+		if (piece == null || piece.getClass() != pieceType || piece.color() != color)
 			return Map.of();
 		return new HashMap<>(Map.of(piece, endSquare));
 	}

@@ -26,8 +26,8 @@ public final class King extends Piece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		var row = currentLocation.getRow();
-		var line = currentLocation.getLine();
+		var row = currentLocation.row();
+		var line = currentLocation.line();
 		for (int rowDelta = -1; rowDelta <= 1; rowDelta++) {
 			var destinationRow = row + rowDelta;
 			if (destinationRow < 1 || destinationRow > 8) continue;

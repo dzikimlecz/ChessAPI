@@ -28,7 +28,7 @@ public abstract class ChessPiece {
 	 * @return color (black or white)
 	 * @see Color
 	 */
-	public Color getColor() {
+	public Color color() {
 		return color;
 	}
 
@@ -37,5 +37,5 @@ public abstract class ChessPiece {
 	 * alphabetic character and second being a integer (not character representation of it!)
 	 * @return array of location {line, row}
 	 */
-	public abstract char[] getLocation();
+	public abstract char[] location();
 }

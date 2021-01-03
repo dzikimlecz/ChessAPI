@@ -29,14 +29,14 @@ public class CheckAnalyser implements MoveAnalyser {
 
 	@Override
 	public MoveData analyse(MoveData data) {
-		this.board = gamesData.getBoard();
+		this.board = gamesData.board();
 		this.boardState = board.getState();
 		Map<Piece, Square> variations = data.getVariations();
 		for (Piece piece : variations.keySet()) {
 			var targetSquare = variations.get(piece);
 			lookForTaking(data, targetSquare);
 			if (lookForCheck(data)) {
-				var notation = new StringBuilder(data.getNotation());
+				var notation = new StringBuilder(data.notation());
 				notation.setLength(notation.length() - 1);
 				notation.append((lookForMate(data)) ? '#' : '+');
 				data.setNotation(notation.toString());
@@ -46,19 +46,19 @@ public class CheckAnalyser implements MoveAnalyser {
 	}
 
 	private boolean lookForCheck(MoveData data) {
-		King king = board.getKing((data.getColor() == Color.WHITE) ? Color.BLACK : Color.WHITE);
-		if (boardState.isSquareAttacked(king.getSquare(), king.getColor())) {
-			data.setNotation(data.getNotation() + '+');
+		King king = board.getKing((data.color() == Color.WHITE) ? Color.BLACK : Color.WHITE);
+		if (boardState.isSquareAttacked(king.square(), king.color())) {
+			data.setNotation(data.notation() + '+');
 			return true;
 		}
 		return false;
 	}
 
 	private boolean lookForMate(MoveData data) {
-		var color = data.getColor();
+		var color = data.color();
 		King king = board.getKing((color == Color.WHITE) ? Color.BLACK : Color.WHITE);
 
-		boolean areCloseSquaresBlocked = king.getMoveDeltas().stream().allMatch(set -> {
+		boolean areCloseSquaresBlocked = king.moveDeltas().stream().allMatch(set -> {
 			var square = board.square((char) set[0], set[1]);
 			return boardState.isSquareOccupied(square, color) ||
 					boardState.isSquareAttacked(square, color);
@@ -72,7 +72,7 @@ public class CheckAnalyser implements MoveAnalyser {
 			for (Piece piece : pieces) {
 				if (piece instanceof King) continue;
 				var attackingSquare = variations.get(piece);
-				var squaresBetween = board.squaresBetween(attackingSquare, king.getSquare());
+				var squaresBetween = board.squaresBetween(attackingSquare, king.square());
 				for (Square square : squaresBetween) {
 					var possibleResponses =
 							board.getPiecesMovingTo(square, Piece.class, color)
@@ -89,8 +89,8 @@ public class CheckAnalyser implements MoveAnalyser {
 	}
 
 	private void lookForTaking(MoveData data, Square targetSquare) {
-		if (targetSquare.getPiece() != null) {
-			var newNotation = new StringBuilder(data.getNotation())
+		if (targetSquare.piece() != null) {
+			var newNotation = new StringBuilder(data.notation())
 					.insert(1, 'x');
 			data.setNotation(newNotation.toString());
 		}

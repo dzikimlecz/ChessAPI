@@ -27,8 +27,8 @@ public final class Knight extends TakeablePiece {
 	 */
 	@Override
 	protected void updateDeltas() {
-		final int startingRow = currentLocation.getRow();
-		final int startingLine = currentLocation.getLine();
+		final int startingRow = currentLocation.row();
+		final int startingLine = currentLocation.line();
 		//all possible changes of coordinates for a knight being at the middle of the board.
 		byte[][] deltasSets =
 				{{-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}};

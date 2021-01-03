@@ -44,8 +44,8 @@ public class Board {
 
 		//Puts every piece on its place
  		this.putPieces();
-		this.whiteKing = (King) square('e', 1).getPiece();
-		this.blackKing = (King) square('e', 8).getPiece();
+		this.whiteKing = (King) square('e', 1).piece();
+		this.blackKing = (King) square('e', 8).piece();
 		this.boardState = new BoardState(this);
 	}
 
@@ -111,8 +111,8 @@ public class Board {
 	 */
 	public Square getSquareByDelta(Square startingSquare, int[] delta) {
 		if (delta.length != 2) throw new IllegalArgumentException("Illegal format of delta.");
-		char line = (char) (startingSquare.getLine() + delta[0]);
-		int row = startingSquare.getRow() + delta[1];
+		char line = (char) (startingSquare.line() + delta[0]);
+		int row = startingSquare.row() + delta[1];
 		return square(line, row);
 	}
 
@@ -138,10 +138,10 @@ public class Board {
 	public List<Square> squaresBetween(Square square, Square square1, boolean inclusive) {
 		int lesserChange = inclusive ? 0 : 1;
 		int biggerChange = inclusive ? 1 : 0;
-		final int lesserY = Math.min(square.getRow(), square1.getRow()) + lesserChange;
-		final int biggerY = Math.max(square.getRow(), square1.getRow()) + biggerChange;
-		final char lesserX = (char) (Math.min(square.getLine(), square1.getLine()) + lesserChange);
-		final char biggerX = (char) (Math.max(square.getLine(), square1.getLine()) + biggerChange);
+		final int lesserY = Math.min(square.row(), square1.row()) + lesserChange;
+		final int biggerY = Math.max(square.row(), square1.row()) + biggerChange;
+		final char lesserX = (char) (Math.min(square.line(), square1.line()) + lesserChange);
+		final char biggerX = (char) (Math.max(square.line(), square1.line()) + biggerChange);
 
 		List<Square> squares = new ArrayList<>();
 		for (int y = lesserY; y < biggerY; y++)
@@ -198,10 +198,10 @@ public class Board {
 			for (int rowCursor = 1; rowCursor <= 8; rowCursor++) {
 				for (char lineCursor = 'a'; lineCursor <= 'h'; lineCursor++) {
 					var squareCursor = square(lineCursor, rowCursor);
-					Piece piece = squareCursor.getPiece();
+					Piece piece = squareCursor.piece();
 					if (piece == null) continue;
-					if (piece.getColor() == color && piece.getClass() == type) {
-						for (int[] deltas : piece.getMoveDeltas()) {
+					if (piece.color() == color && piece.getClass() == type) {
+						for (int[] deltas : piece.moveDeltas()) {
 							try {
 								if (getSquareByDelta(squareCursor, deltas) == square) {
 									pieces.add(piece);
@@ -238,9 +238,9 @@ public class Board {
 		var stringBuilder = new StringBuilder();
 		for (Square[] squares : theBoard) {
 			for (Square square : squares) {
-				var piece = square.getPiece();
+				var piece = square.piece();
 				String character = (piece == null) ? "   " :
-						piece.getColor().name().charAt(0) + piece.toString() + ' ';
+						piece.color().name().charAt(0) + piece.toString() + ' ';
 				stringBuilder.append(character);
 			}
 			stringBuilder.append('\n');
