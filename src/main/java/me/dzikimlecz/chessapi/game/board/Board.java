@@ -127,9 +127,12 @@ public class Board {
 		return squaresBetween(square, square1, false);
 	}
 
+
+
 	/**
 	 * Gets list of all squares lying in space between other 2.<br>
-	 * MAY PRODUCE BUGS WHEN SQUARES ARE NOT ON THE SAME LINE OR DIAGONAL - IT'S MISUSE
+	 * <strong>May misbehave when used on squares not laying on same row, line, nor diagonal -
+	 * It's a misuse.</strong>
 	 * @param square start of the space to be returned.
 	 * @param square1 end of the space to be returned.
 	 * @param inclusive are the squares on the edges supposed to be included.
@@ -138,15 +141,24 @@ public class Board {
 	public List<Square> squaresBetween(Square square, Square square1, boolean inclusive) {
 		int lesserChange = inclusive ? 0 : 1;
 		int biggerChange = inclusive ? 1 : 0;
-		final int lesserY = Math.min(square.row(), square1.row()) + lesserChange;
-		final int biggerY = Math.max(square.row(), square1.row()) + biggerChange;
-		final char lesserX = (char) (Math.min(square.line(), square1.line()) + lesserChange);
-		final char biggerX = (char) (Math.max(square.line(), square1.line()) + biggerChange);
+		final int lesserRow = Math.min(square.row(), square1.row()) + lesserChange;
+		final int biggerRow = Math.max(square.row(), square1.row()) + biggerChange;
+		final char lesserLine = (char) (Math.min(square.line(), square1.line()) + lesserChange);
+		final char biggerLine = (char) (Math.max(square.line(), square1.line()) + biggerChange);
 
 		List<Square> squares = new ArrayList<>();
-		for (int y = lesserY; y < biggerY; y++)
-			for (char x = lesserX; x < biggerX; x++)
-				squares.add(this.square(x, y));
+		if (square.line() == square1.line())
+			for (int row = lesserRow; row < biggerRow; row++)
+				squares.add(this.square(square.line(), row));
+		else if (square.row() == square1.row())
+			for (char line = lesserLine; line < biggerLine; line++)
+				squares.add(this.square(line, square.row()));
+		else {
+			char line = lesserLine;
+			for (int row = lesserRow; row < biggerRow && line < biggerLine; row++, line++)
+					squares.add(this.square(line, row));
+		}
+
 
 		return List.copyOf(squares);
 	}
