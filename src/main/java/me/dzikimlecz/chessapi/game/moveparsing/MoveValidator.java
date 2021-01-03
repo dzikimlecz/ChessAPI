@@ -8,8 +8,7 @@ import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.chessapi.game.movestoring.GamesData;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class MoveValidator implements IMoveValidator {
@@ -29,10 +28,13 @@ public class MoveValidator implements IMoveValidator {
 		color = gamesData.getColor();
 		boardState = board.getState();
 		Map<Piece, Square> moveVariations = moveData.getVariations();
+
 		if (moveData.doingCastling()) return validateCastling(moveData);
-		for (Piece piece : moveVariations.keySet()) {
+
+		for (Iterator<Piece> iterator = moveVariations.keySet().iterator(); iterator.hasNext(); ) {
+			Piece piece = iterator.next();
 			int status = validStatus(piece, moveVariations.get(piece));
-			if (status == 0) moveVariations.remove(piece);
+			if (status == 0) iterator.remove();
 			else if (status < 0) moveData.setToFurtherCheck(true);
 		}
 		return moveData;
@@ -58,39 +60,38 @@ public class MoveValidator implements IMoveValidator {
 
 	private int validatePawnMove(Pawn pawn, Square square) {
 		final Square pawnSquare = pawn.getSquare();
-		final int yDelta = (color == Color.WHITE) ? 1 : -1;
-		final int startRow = (color == Color.WHITE) ? 2 : 7;
+		final int rowDelta = (color == Color.WHITE) ? 1 : -1;
 		final int opponentsFirstFreeRow = (color == Color.BLACK) ? 3 : 6;
-		final Square squareBefore = board.square(square.getLine(), square.getRow() + yDelta);
+		final Square squareBefore = board.square(square.getLine(), square.getRow() - rowDelta);
 		//taking move:
 		if (pawnSquare.getLine() != square.getLine()) {
 			Piece piece = square.getPiece();
 			if(piece instanceof King) return 0;
 			if (piece == null) {
 				boolean valid = squareBefore.getPiece() instanceof Pawn
+						&& squareBefore.getPiece().getColor() == pawn.getColor().opposite()
 						&& square.getRow() == opponentsFirstFreeRow;
 				return valid ? -1 : 0;
 			}
 			return 1;
 		}
 		else if (Math.abs(pawnSquare.getRow() - square.getRow()) == 2) {
-			boolean valid = squareBefore.getPiece() == null && pawn.getLocation()[1] == startRow;
+			boolean valid = squareBefore.getPiece() == null;
 			if (!valid) return 0;
 		}
 		return 1;
 	}
 
 	private MoveData validateCastling(MoveData moveData) {
-		LinkedHashMap<Piece, Square> map = (LinkedHashMap<Piece, Square>) moveData.getVariations();
-		King king = (King) map.keySet().toArray()[0];
-		Rook rook = (Rook) map.keySet().toArray()[1];
+		Map<Piece, Square> map = moveData.getVariations();
+		var pieces = map.keySet().toArray();
+		King king = (King) pieces[0];
+		Rook rook = (Rook) pieces[1];
 		Square kingSquare = king.getSquare();
 		Square rookSquare = rook.getSquare();
-		boolean invalid =
-				board.squaresBetween(kingSquare, map.get(king), true)
-						.stream().anyMatch(square -> boardState.isSquareAttacked(square, color))
+		boolean invalid = board.squaresBetween(kingSquare, map.get(king), true)
+				.stream().anyMatch(square -> boardState.isSquareAttacked(square, color))
 				|| boardState.anyPiecesBetween(kingSquare, rookSquare);
-
 		if (invalid) map.clear();
 		else moveData.setToFurtherCheck(true);
 		return moveData;
