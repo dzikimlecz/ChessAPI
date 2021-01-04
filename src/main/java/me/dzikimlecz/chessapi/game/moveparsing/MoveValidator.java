@@ -31,7 +31,7 @@ public class MoveValidator implements IMoveValidator {
 
 		if (moveData.doingCastling()) return validateCastling(moveData);
 
-		for (Iterator<Piece> iterator = moveVariations.keySet().iterator(); iterator.hasNext(); ) {
+		for (Iterator<Piece> iterator = moveVariations.keySet().iterator(); iterator.hasNext();) {
 			Piece piece = iterator.next();
 			int status = validStatus(piece, moveVariations.get(piece));
 			if (status == 0) iterator.remove();
@@ -68,8 +68,9 @@ public class MoveValidator implements IMoveValidator {
 			Piece piece = square.piece();
 			if(piece instanceof King) return 0;
 			if (piece == null) {
-				boolean valid = squareBefore.piece() instanceof Pawn
-						&& squareBefore.piece().color() == pawn.color().opposite()
+				var pieceBefore = squareBefore.piece();
+				boolean valid = pieceBefore instanceof Pawn
+						&& pieceBefore.color() == pawn.color().opposite()
 						&& square.row() == opponentsFirstFreeRow;
 				return valid ? -1 : 0;
 			}
