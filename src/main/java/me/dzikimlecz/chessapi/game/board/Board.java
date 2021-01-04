@@ -12,7 +12,7 @@ import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
 import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
 /**
- * Chess board of dimensions 8x8 containing squares.
+ * Chequerboard of dimensions 8x8 containing squares.
  * @see Square
  * @see ChessPiece
  * @see Piece
@@ -145,20 +145,19 @@ public class Board {
 		final int biggerRow = Math.max(square.row(), square1.row()) + biggerChange;
 		final char lesserLine = (char) (Math.min(square.line(), square1.line()) + lesserChange);
 		final char biggerLine = (char) (Math.max(square.line(), square1.line()) + biggerChange);
-
 		List<Square> squares = new ArrayList<>();
+
 		if (square.line() == square1.line())
 			for (int row = lesserRow; row < biggerRow; row++)
 				squares.add(this.square(square.line(), row));
+
 		else if (square.row() == square1.row())
 			for (char line = lesserLine; line < biggerLine; line++)
 				squares.add(this.square(line, square.row()));
-		else {
-			char line = lesserLine;
-			for (int row = lesserRow; row < biggerRow && line < biggerLine; row++, line++)
-					squares.add(this.square(line, row));
-		}
 
+		else for (int row = lesserRow, line = lesserLine;
+		          row < biggerRow && line < biggerLine; row++, line++)
+				squares.add(this.square((char) line, row));
 
 		return List.copyOf(squares);
 	}
@@ -189,6 +188,7 @@ public class Board {
 	public List<? extends Piece> getPiecesMovingTo(Square square,
 	                                               @Nullable Class<? extends Piece> type,
 	                                               @NotNull Color color) {
+		if (square == null) return List.of();
 		List<Piece> pieces = new ArrayList<>();
 		if (type == Piece.class) {
 			List.of(
@@ -234,7 +234,7 @@ public class Board {
 	 * @param color color of the ordered King
 	 * @return King of player with specified color
 	 */
-	public King getKing(Color color) {
+	public King getKing(@NotNull Color color) {
 		return (color == WHITE) ? whiteKing : blackKing;
 	}
 
