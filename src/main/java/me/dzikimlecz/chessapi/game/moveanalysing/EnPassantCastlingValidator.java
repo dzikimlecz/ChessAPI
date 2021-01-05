@@ -15,9 +15,11 @@ public class EnPassantCastlingValidator implements IMoveValidator {
 
 	@Override
 	public MoveData validate(MoveData data) {
-		if (data.toFurtherCheck())
+		if (data.toFurtherCheck()) {
 			if (data.doingCastling()) validateCastling(data);
 			else validateEnPassant(data);
+			data.setToFurtherCheck(false);
+		}
 		return data;
 	}
 
