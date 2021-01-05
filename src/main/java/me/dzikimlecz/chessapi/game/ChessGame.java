@@ -3,8 +3,10 @@ package me.dzikimlecz.chessapi.game;
 import me.dzikimlecz.chessapi.DrawReason;
 import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.board.pieces.Takeable;
+import me.dzikimlecz.chessapi.game.moveanalysing.CheckAnalyser;
 import me.dzikimlecz.chessapi.game.moveanalysing.DrawAnalyser;
 import me.dzikimlecz.chessapi.game.moveanalysing.EnPassantCastlingValidator;
+import me.dzikimlecz.chessapi.game.moveanalysing.MoveAnalyser;
 import me.dzikimlecz.chessapi.game.movestoring.*;
 import me.dzikimlecz.chessapi.ChessEventListener;
 import me.dzikimlecz.chessapi.game.board.Board;
@@ -23,6 +25,7 @@ public class ChessGame {
 	private final Board board;
 	private final DrawAnalyser drawAnalyser;
 	private final EnPassantCastlingValidator enPassantCastlingValidator;
+	private final MoveAnalyser checkAnalyser;
 	private boolean hasStopped;
 
 	public ChessGame(MoveDatabase moveDatabase, ChessEventListener listener, GamesData gamesData) {
@@ -32,6 +35,7 @@ public class ChessGame {
 		board = new Board();
 		drawAnalyser = new DrawAnalyser(moveDatabase, gamesData, new MoveValidator(gamesData));
 		enPassantCastlingValidator = new EnPassantCastlingValidator(moveDatabase);
+		checkAnalyser = new CheckAnalyser(gamesData, new MoveValidator(gamesData));
 	}
 
 	public Board board() {
@@ -41,25 +45,30 @@ public class ChessGame {
 	public void handleMove(MoveData data) {
 		if (hasStopped) throw new IllegalStateException("Game is not ongoing");
 
-		if (data.toFurtherCheck()) enPassantCastlingValidator.validate(data);
-		Map<Piece, Square> variations = data.getVariations();
-		if (variations.isEmpty()) {
+		if (data.toFurtherCheck()) data.validate(enPassantCastlingValidator);
+		Map<Piece, Square> pieceMoves = data.getVariations();
+		if (pieceMoves.isEmpty()) {
 			listener.onIllegalMove();
 			return;
 		}
 
-		for (Piece piece : variations.keySet()) {
-			var targetSquare = variations.get(piece);
-			var targetSquarePiece = targetSquare.piece();
+		pieceMoves.forEach((piece, square) -> {
+			var targetSquarePiece = square.piece();
 			if (targetSquarePiece != null) {
 				if (!(targetSquarePiece instanceof Takeable))
 					throw new IllegalStateException("Cannot take non-takeable piece.");
 				((Takeable) targetSquarePiece).beTaken();
+				var newNotation = new StringBuilder(data.notation())
+						.insert(1, 'x');
+				data.setNotation(newNotation.toString());
 			}
-			piece.moveTo(targetSquare);
-		}
+			piece.moveTo(square);
+		});
+
+		checkAnalyser.analyse(data);
 		moveDatabase.put(data);
 		gamesData.setColor(moveDatabase.turnColor());
+
 		var notation = data.notation();
 		if (notation.contains("+")) listener.onCheck(gamesData.color());
 		else if (notation.contains("#")) {

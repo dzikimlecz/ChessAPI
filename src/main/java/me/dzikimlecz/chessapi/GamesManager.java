@@ -20,7 +20,6 @@ public class GamesManager<K> {
 	private final GamesData gamesData;
 	private final IMoveParser parser;
 	private final IMoveValidator validator;
-	private final MoveAnalyser analyser;
 	private final Map<K, ChessGame> games;
 	private final Map<ChessGame, GameInfo<?, ?>> gameInfoMap;
 
@@ -28,7 +27,6 @@ public class GamesManager<K> {
 		gamesData = new GamesData();
 		parser = new MoveParser(gamesData);
 		validator = new MoveValidator(gamesData);
-		analyser = new CheckAnalyser(gamesData, validator);
 		games = new LinkedHashMap<>();
 		gameInfoMap = new LinkedHashMap<>();
 	}
@@ -56,9 +54,9 @@ public class GamesManager<K> {
 		ChessGame game = getGame(gameKey);
 		gamesData.setBoard(game.board());
 		gamesData.setColor(game.color());
-		notation = notation.replaceAll("[^a-hOo0-8PNSBGRWQHK\\-]*", "");
+		notation = notation.replaceAll("[^a-zA-Z0-9]", "");
 		try {
-			game.handleMove(parser.parse(notation).validate(validator).analyse(analyser));
+			game.handleMove(parser.parse(notation).validate(validator));
 		} catch(Exception e) {
 			game.listener().onIllegalMove();
 		}
