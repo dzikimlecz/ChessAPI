@@ -3,7 +3,6 @@ package me.dzikimlecz.chessapi.game.moveanalysing;
 import me.dzikimlecz.chessapi.game.board.BoardState;
 import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.board.Board;
-import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.King;
 import me.dzikimlecz.chessapi.game.board.pieces.Knight;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
@@ -33,8 +32,6 @@ public class CheckAnalyser implements MoveAnalyser {
 		this.boardState = board.getState();
 		Map<Piece, Square> variations = data.getVariations();
 		for (Piece piece : variations.keySet()) {
-			var targetSquare = variations.get(piece);
-			lookForTaking(data, targetSquare);
 			if (lookForCheck(data)) {
 				var notation = new StringBuilder(data.notation());
 				notation.setLength(notation.length() - 1);
@@ -46,20 +43,15 @@ public class CheckAnalyser implements MoveAnalyser {
 	}
 
 	private boolean lookForCheck(MoveData data) {
-		King king = board.getKing((data.color() == Color.WHITE) ? Color.BLACK : Color.WHITE);
-		if (boardState.isSquareAttacked(king.square(), king.color())) {
-			data.setNotation(data.notation() + '+');
-			return true;
-		}
-		return false;
+		return boardState.isKingAttacked(data.color().opposite());
 	}
 
 	private boolean lookForMate(MoveData data) {
-		var color = data.color();
-		King king = board.getKing((color == Color.WHITE) ? Color.BLACK : Color.WHITE);
+		var color = data.color().opposite();
+		King king = board.getKing(color);
 
 		boolean areCloseSquaresBlocked = king.moveDeltas().stream().allMatch(set -> {
-			var square = board.square((char) set[0], set[1]);
+			var square = board.getSquareByDelta(king.square(), set);
 			return boardState.isSquareOccupied(square, color) ||
 					boardState.isSquareAttacked(square, color);
 		});
@@ -88,11 +80,4 @@ public class CheckAnalyser implements MoveAnalyser {
 		return true;
 	}
 
-	private void lookForTaking(MoveData data, Square targetSquare) {
-		if (targetSquare.piece() != null) {
-			var newNotation = new StringBuilder(data.notation())
-					.insert(1, 'x');
-			data.setNotation(newNotation.toString());
-		}
-	}
 }
