@@ -16,19 +16,18 @@ public class BoardState {
 	}
 
 	public boolean isSquareOccupied(Square square, Color color) {
-		return (square.piece() != null) && (square.piece().color() == color);
+		var piece = square.piece();
+		return (piece != null) && (piece.color() == color);
 	}
 
 	public boolean isSquareAttacked(Square square, Color attackedColor) {
-		Color oppositeColor = attackedColor.opposite();
 		return board.getPiecesMovingTo(
-				square.line(),
-				square.row(),
-				null,
-				oppositeColor
+				square,
+				Piece.class,
+				attackedColor.opposite()
 		).stream().anyMatch(
 				opponentPiece -> opponentPiece.getClass() == Knight.class
-						|| !anyPiecesBetween(square, opponentPiece.square())
+						|| noPiecesBetween(square, opponentPiece.square())
 		);
 	}
 
@@ -57,7 +56,7 @@ public class BoardState {
 						oppositeColor
 				).stream()
 						.filter(opponentPiece -> opponentPiece.getClass() != Knight.class)
-						.filter(opponentPiece -> !anyPiecesBetween(
+						.filter(opponentPiece -> noPiecesBetween(
 								piece.square(),
 								opponentPiece.square()))
 						.collect(Collectors.toList());
@@ -68,12 +67,23 @@ public class BoardState {
 	}
 
 	public boolean anyPiecesBetween(@NotNull Square square, @NotNull Square square1) {
-		return board.squaresBetween(square, square1).stream()
-				.anyMatch(square2 -> square2.piece() != null);
+		return !noPiecesBetween(square, square1);
+	}
+
+	public boolean noPiecesBetween(@NotNull Square square, @NotNull Square square1) {
+		var squares = board.squaresBetween(square, square1);
+		return squares.isEmpty() || squares.stream().allMatch(square2 -> square2.piece() == null);
 	}
 
 	public int countOfPiecesBetween(@NotNull Square square, @NotNull Square square1) {
 		return (int) board.squaresBetween(square, square1).stream()
 				.filter(square2 -> square2.piece() != null).count();
+	}
+
+	public boolean isKingAttacked(Color attacked) {
+		var kingsSquare = board.getKing(attacked).square();
+		return board.getPiecesMovingTo(kingsSquare, Piece.class, attacked.opposite()).stream()
+				.anyMatch(piece -> piece instanceof Knight || noPiecesBetween(piece.square(),
+				                                                               kingsSquare));
 	}
 }
