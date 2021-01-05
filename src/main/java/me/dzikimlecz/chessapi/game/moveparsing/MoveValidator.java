@@ -47,8 +47,8 @@ public class MoveValidator implements IMoveValidator {
 		if (!(piece instanceof Knight)
 				&& boardState.anyPiecesBetween(piece.square(), square))  return 0;
 
-		if (!(piece instanceof King)
-				&& boardState.isPieceDefendingKing(piece))  return 0;
+		if (!(piece instanceof King) && (boardState.isPieceDefendingKing(piece) ||
+				boardState.isKingAttacked(color))) return 0;
 
 		if (piece instanceof Pawn) return validatePawnMove((Pawn) piece, square);
 
