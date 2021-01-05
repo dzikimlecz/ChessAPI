@@ -118,7 +118,8 @@ public class Board {
 
 	/**
 	 * Gets list of all squares lying in space between other 2 (exclusive of them).<br>
-	 * MAY PRODUCE BUGS WHEN SQUARES ARE NOT ON THE SAME LINE OR DIAGONAL - IT'S MISUSE
+	 * <strong>May misbehave when used on squares not laying on same row, line, nor diagonal -
+	 * It's a misuse.</strong>
 	 * @param square start of the space to be returned.
 	 * @param square1 end of the space to be returned.
 	 * @return all squares between {@code square} and {@code square1}
@@ -126,8 +127,6 @@ public class Board {
 	public List<Square> squaresBetween(Square square, Square square1) {
 		return squaresBetween(square, square1, false);
 	}
-
-
 
 	/**
 	 * Gets list of all squares lying in space between other 2.<br>
@@ -138,28 +137,25 @@ public class Board {
 	 * @param inclusive are the squares on the edges supposed to be included.
 	 * @return all squares between {@code square} and {@code square1}
 	 */
-	public List<Square> squaresBetween(Square square, Square square1, boolean inclusive) {
-		int lesserChange = inclusive ? 0 : 1;
-		int biggerChange = inclusive ? 1 : 0;
-		final int lesserRow = Math.min(square.row(), square1.row()) + lesserChange;
-		final int biggerRow = Math.max(square.row(), square1.row()) + biggerChange;
-		final char lesserLine = (char) (Math.min(square.line(), square1.line()) + lesserChange);
-		final char biggerLine = (char) (Math.max(square.line(), square1.line()) + biggerChange);
+	public List<Square> squaresBetween(@NotNull Square square,
+	                                   @NotNull Square square1,
+	                                   boolean inclusive) {
+		if (square.equals(square1)) return List.of(square);
 		List<Square> squares = new ArrayList<>();
+		final float rowDelta  = Math.signum(square1.row() - square.row());
+		final float lineDelta = Math.signum(square1.line() - square.line());
+		int row = square.row();
+		char line = square.line();
+		while (row != square1.row() || line != square1.line()) {
+			squares.add(square(line, row));
+			row += rowDelta;
+			line += lineDelta;
+		}
 
-		if (square.line() == square1.line())
-			for (int row = lesserRow; row < biggerRow; row++)
-				squares.add(this.square(square.line(), row));
+		if (inclusive) squares.add(square1);
+		else squares.remove(square);
 
-		else if (square.row() == square1.row())
-			for (char line = lesserLine; line < biggerLine; line++)
-				squares.add(this.square(line, square.row()));
-
-		else for (int row = lesserRow, line = lesserLine;
-		          row < biggerRow && line < biggerLine; row++, line++)
-				squares.add(this.square((char) line, row));
-
-		return List.copyOf(squares);
+		return squares;
 	}
 
 	/**
