@@ -7,9 +7,10 @@ import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 import me.dzikimlecz.chessapi.game.movestoring.MoveDatabase;
 
 public class EnPassantCastlingValidator implements IMoveValidator {
-	private final MoveDatabase moveDatabase;
+	private MoveDatabase moveDatabase;
 
-	public EnPassantCastlingValidator(MoveDatabase moveDatabase) {
+	@Override
+	public void setMoveDatabase(MoveDatabase moveDatabase) {
 		this.moveDatabase = moveDatabase;
 	}
 

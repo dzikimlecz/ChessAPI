@@ -6,7 +6,7 @@ import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
-import me.dzikimlecz.chessapi.game.movestoring.GamesData;
+import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 import me.dzikimlecz.chessapi.game.movestoring.MoveDatabase;
 import org.jetbrains.annotations.Nullable;
@@ -20,23 +20,32 @@ import java.util.Optional;
 import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
 import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
-public class DrawAnalyser {
-	private final MoveDatabase moveDatabase;
-	private final GamesData gamesData;
-	private final IMoveValidator validator;
+public class DrawAnalyser implements IDrawAnalyser {
+	private MoveDatabase moveDatabase;
+	private GameState gameState;
+	private IMoveValidator validator;
 	private Board board;
 	private List<MoveData> whiteMoves;
 	private List<MoveData> blackMoves;
 
-	public DrawAnalyser(MoveDatabase moveDatabase, GamesData gamesData, IMoveValidator validator) {
+	@Override
+	public void setMoveDatabase(MoveDatabase moveDatabase) {
 		this.moveDatabase = moveDatabase;
-		this.gamesData = gamesData;
+	}
+
+	@Override
+	public void setValidator(IMoveValidator validator) {
 		this.validator = validator;
+	}
+
+	@Override
+	public void setGameState(GameState gameState) {
+		this.gameState = gameState;
 	}
 
 	@Nullable
 	public DrawReason lookForDraw() {
-		this.board = gamesData.board();
+		this.board = gameState.board();
 		whiteMoves = moveDatabase.getAllMoves(WHITE);
 		blackMoves = moveDatabase.getAllMoves(BLACK);
 		if (noMovesWithPawnDuring50Moves()) return DrawReason.FIFTY_MOVES_WITHOUT_PAWN;
@@ -59,7 +68,7 @@ public class DrawAnalyser {
 
 	private boolean staleMate() {
 		if (whiteMoves.size() < 10) return false;
-		Color color = gamesData.color();
+		Color color = gameState.color();
 		List<Piece> pieces = new ArrayList<>();
 		for (int row = 1; row <= 8; row++) {
 			for (char line = 'a'; line <= 'h'; line++) {

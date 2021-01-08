@@ -5,27 +5,28 @@ import me.dzikimlecz.chessapi.game.board.BoardState;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
-import me.dzikimlecz.chessapi.game.movestoring.GamesData;
+import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
 import java.util.Iterator;
 import java.util.Map;
 
 public class MoveValidator implements IMoveValidator {
-	private final GamesData gamesData;
+	private GameState gameState;
 
 	private Board board;
 	private Color color;
 	private BoardState boardState;
 
-	public MoveValidator(GamesData gamesData) {
-		this.gamesData = gamesData;
+	@Override
+	public void setGameState(GameState gameState) {
+		this.gameState = gameState;
 	}
 
 	@Override
 	public MoveData validate(MoveData moveData) {
-		board = gamesData.board();
-		color = gamesData.color();
+		board = gameState.board();
+		color = gameState.color();
 		boardState = board.getState();
 		Map<Piece, Square> moveVariations = moveData.getVariations();
 

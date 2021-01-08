@@ -7,28 +7,31 @@ import me.dzikimlecz.chessapi.game.board.pieces.King;
 import me.dzikimlecz.chessapi.game.board.pieces.Knight;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
-import me.dzikimlecz.chessapi.game.movestoring.GamesData;
+import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CheckAnalyser implements MoveAnalyser {
-
-	public final GamesData gamesData;
+public class CheckAnalyser implements IMoveAnalyser {
+	private GameState gameState;
 	private BoardState boardState;
 	private Board board;
-	private final IMoveValidator validator;
+	private IMoveValidator validator;
 
-	public CheckAnalyser(GamesData gamesData, IMoveValidator validator) {
-		this.gamesData = gamesData;
+	@Override
+	public void setValidator(IMoveValidator validator) {
 		this.validator = validator;
 	}
 
+	@Override
+	public void setGameState(GameState gameState) {
+		this.gameState = gameState;
+	}
 
 	@Override
 	public MoveData analyse(MoveData data) {
-		this.board = gamesData.board();
+		this.board = gameState.board();
 		this.boardState = board.getState();
 		Map<Piece, Square> variations = data.getVariations();
 		for (Piece piece : variations.keySet()) {

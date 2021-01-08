@@ -4,7 +4,7 @@ import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.Board;
-import me.dzikimlecz.chessapi.game.movestoring.GamesData;
+import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,18 +17,20 @@ import java.util.stream.Collectors;
 
 public class MoveParser implements IMoveParser {
 
-	private final GamesData data;
+	private GameState gameState;
 
 	private Board board;
 	private IllegalArgumentException illegalMove;
 
-	public MoveParser(GamesData data) {
-		this.data = data;
+	@Override
+	public void setGameState(GameState gameState) {
+		this.gameState = gameState;
 	}
 
+	@Override
 	public MoveData parse(String notation) {
-		board = data.board();
-		Color color = data.color();
+		board = gameState.board();
+		Color color = gameState.color();
 		Map<Piece, Square> variations = parseToMap(notation, color);
 		return new MoveData(notation, variations, color);
 	}
