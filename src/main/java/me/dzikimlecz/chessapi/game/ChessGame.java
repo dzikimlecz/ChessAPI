@@ -101,13 +101,13 @@ public class ChessGame extends Thread {
 		return board;
 	}
 
-	public void move(String notation) {
+	private void move(String notation) {
 		if (hasStopped.get()) throw new IllegalStateException("Game is not ongoing");
 		var moveData = validator.validate(parser.parse(notation));
 		handleMove(moveData);
 	}
 
-	public void handleMove(MoveData data) {
+	private void handleMove(MoveData data) {
 
 		if (data.toFurtherCheck()) data.validate(enPassantCastlingValidator);
 		Map<Piece, Square> pieceMoves = data.getVariations();
