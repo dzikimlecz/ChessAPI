@@ -3,7 +3,7 @@ package me.dzikimlecz.chessapi.game.movestoring;
 import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveParser;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
-import me.dzikimlecz.chessapi.game.moveanalysing.MoveAnalyser;
+import me.dzikimlecz.chessapi.game.moveanalysing.IMoveAnalyser;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 
@@ -41,7 +41,7 @@ public class MoveData {
 		return validator.validate(this);
 	}
 
-	public MoveData analyse(MoveAnalyser analyzer) {
+	public MoveData analyse(IMoveAnalyser analyzer) {
 		return analyzer.analyse(this);
 	}
 
