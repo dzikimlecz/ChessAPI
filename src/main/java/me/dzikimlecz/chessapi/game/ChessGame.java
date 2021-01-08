@@ -55,7 +55,7 @@ public class ChessGame extends Thread {
 		this.gameState = new GameState();
 		gameState.setBoard(board);
 		gameState.setColor(WHITE);
-		this.events = new LinkedBlockingQueue<>(50);
+		this.events = new LinkedBlockingQueue<>(100);
 		this.moveDatabase = moveDatabase;
 		this.listener = listener;
 		this.drawAnalyser = drawAnalyser;
@@ -91,6 +91,11 @@ public class ChessGame extends Thread {
 			}
 		}
 	}
+
+	public void handleEvent(ChessEvent event) throws InterruptedException {
+		events.put(event);
+	}
+
 
 	public Board board() {
 		return board;
