@@ -1,9 +1,10 @@
 package me.dzikimlecz.chessapi;
 
 import me.dzikimlecz.chessapi.game.ChessGame;
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
-import me.dzikimlecz.chessapi.game.movestoring.ListMoveDatabase;
+import me.dzikimlecz.chessapi.game.events.ChessEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -20,12 +21,14 @@ public class GamesManager<K> {
 
 	public void newGame(K gameKey, ChessEventListener listener) {
 		var game = new ChessGame(listener);
-		if(games.containsKey(gameKey))
+		if(games.containsKey(gameKey) && games.get(gameKey).isOngoing())
 			throw new IllegalStateException("Game on this gameKey is already ongoing");
 		games.put(gameKey, game);
 	}
 
 	public void forceClose(K gameKey) {
+		var game = getGame(gameKey);
+		game.interrupt();
 		games.remove(gameKey);
 		System.gc();
 	}
@@ -41,17 +44,17 @@ public class GamesManager<K> {
 
 	}
 
-	protected void handleEvent() {
-
-	}
-
 	@NotNull
 	protected ChessGame getGame(K gameKey) {
-		return games.computeIfAbsent(gameKey, gameKey1 -> {
-			throw new IllegalArgumentException(
-					"There is no game corresponding to gameKey: " + gameKey1.toString()
-			);
+		var noGameException = new IllegalArgumentException(
+				"There is no game corresponding to gameKey: " + gameKey.toString()
+		);
+		var game = games.computeIfAbsent(gameKey, gameKey1 -> {
+			throw noGameException;
 		});
+		if (game.isOngoing()) return game;
+		games.remove(gameKey);
+		throw noGameException;
 	}
 
 	public void attachInfo(K gameKey, @NotNull GameInfo<?, ?> info) {
@@ -73,7 +76,12 @@ public class GamesManager<K> {
 		return pieces;
 	}
 
-	public void requestDraw(K gameKey) {
+	public void requestDraw(K gameKey, Color requester) {
 		var game = getGame(gameKey);
+		try {
+			game.handleEvent(new ChessEvent("draw" + requester.name().toLowerCase()));
+		} catch(InterruptedException e) {
+			game.listener().onIllegalMove();
+		}
 	}
 }
