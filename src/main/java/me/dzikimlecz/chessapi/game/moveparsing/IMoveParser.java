@@ -1,10 +1,11 @@
 package me.dzikimlecz.chessapi.game.moveparsing;
 
+import me.dzikimlecz.chessapi.game.IMoveProcessor;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
 import java.util.regex.Pattern;
 
-public interface IMoveParser {
+public interface IMoveParser extends IMoveProcessor {
 
 	//patterns
 	Pattern simplePawnMove = Pattern.compile(
