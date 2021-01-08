@@ -3,7 +3,7 @@ package me.dzikimlecz.chessapi.game.movestoring;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.Board;
 
-public class GamesData {
+public class GameState {
 	private Board board;
 	private Color color;
 
