@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
 import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
@@ -22,6 +23,7 @@ public class Board {
 	 * Array of squares being raw form of the board
 	 */
 	private final Square[][] theBoard;
+	private final AtomicReferenceArray<Square[]> board;
 	/**
 	 * White King, constant for a whole game
 	 */
@@ -37,6 +39,7 @@ public class Board {
 	 */
 	public Board() {
 		this.theBoard = new Square[8][8];
+		board = new AtomicReferenceArray<>(theBoard);
 		//initializes all squares of the board
 		for (byte row = 0; row < 8; row++)
 			for (byte line = 0; line < 8; line++)
@@ -100,7 +103,7 @@ public class Board {
 	 */
 	public Square square(char line, int row) {
 		int[] coords = parseCoords(row, line);
-		return theBoard[coords[0]][coords[1]];
+		return board.get(coords[0])[coords[1]];
 	}
 
 	/**
