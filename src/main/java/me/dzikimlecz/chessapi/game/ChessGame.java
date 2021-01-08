@@ -3,47 +3,106 @@ package me.dzikimlecz.chessapi.game;
 import me.dzikimlecz.chessapi.DrawReason;
 import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.board.pieces.Takeable;
-import me.dzikimlecz.chessapi.game.moveanalysing.CheckAnalyser;
-import me.dzikimlecz.chessapi.game.moveanalysing.DrawAnalyser;
-import me.dzikimlecz.chessapi.game.moveanalysing.EnPassantCastlingValidator;
-import me.dzikimlecz.chessapi.game.moveanalysing.MoveAnalyser;
+import me.dzikimlecz.chessapi.game.events.ChessEvent;
+import me.dzikimlecz.chessapi.game.moveanalysing.*;
+import me.dzikimlecz.chessapi.game.moveparsing.IMoveParser;
+import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
+import me.dzikimlecz.chessapi.game.moveparsing.MoveParser;
+import me.dzikimlecz.chessapi.game.moveparsing.MoveValidator;
 import me.dzikimlecz.chessapi.game.movestoring.*;
 import me.dzikimlecz.chessapi.ChessEventListener;
 import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
-import me.dzikimlecz.chessapi.game.moveparsing.MoveValidator;
 
 
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ChessGame {
+import static me.dzikimlecz.chessapi.game.board.Color.*;
 
-	private final MoveDatabase moveDatabase;
-	private final ChessEventListener listener;
-	private final GamesData gamesData;
-	private final Board board;
-	private final DrawAnalyser drawAnalyser;
-	private final EnPassantCastlingValidator enPassantCastlingValidator;
-	private final MoveAnalyser checkAnalyser;
-	private boolean hasStopped;
+public class ChessGame extends Thread {
+	private MoveDatabase moveDatabase;
+	private ChessEventListener listener;
+	private IMoveParser parser;
+	private IMoveValidator validator;
+	private GameState gameState;
+	private Board board;
+	private IDrawAnalyser drawAnalyser;
+	private IMoveValidator enPassantCastlingValidator;
+	private IMoveAnalyser checkAnalyser;
+	private BlockingQueue<ChessEvent> events;
+	private final AtomicBoolean hasStopped;
 
-	public ChessGame(MoveDatabase moveDatabase, ChessEventListener listener, GamesData gamesData) {
+	public ChessGame(ChessEventListener listener) {
+		this(listener, new ListMoveDatabase(), new MoveParser(), new MoveValidator(),
+		     new EnPassantCastlingValidator(), new CheckAnalyser(), new DrawAnalyser());
+		checkAnalyser.setValidator(validator);
+		drawAnalyser.setValidator(validator);
+	}
+
+	public ChessGame(ChessEventListener listener,
+	                 MoveDatabase moveDatabase,
+	                 IMoveParser parser,
+	                 IMoveValidator validator,
+	                 IMoveValidator enPassantCastlingValidator,
+	                 IMoveAnalyser checkAnalyser,
+	                 IDrawAnalyser drawAnalyser) {
+		super();
+		this.board = new Board();
+		this.gameState = new GameState();
+		gameState.setBoard(board);
+		gameState.setColor(WHITE);
+		this.events = new LinkedBlockingQueue<>(50);
 		this.moveDatabase = moveDatabase;
 		this.listener = listener;
-		this.gamesData = gamesData;
-		board = new Board();
-		drawAnalyser = new DrawAnalyser(moveDatabase, gamesData, new MoveValidator(gamesData));
-		enPassantCastlingValidator = new EnPassantCastlingValidator(moveDatabase);
-		checkAnalyser = new CheckAnalyser(gamesData, new MoveValidator(gamesData));
+		this.drawAnalyser = drawAnalyser;
+		this.parser = parser;
+		this.validator = validator;
+		this.enPassantCastlingValidator = enPassantCastlingValidator;
+		this.checkAnalyser = checkAnalyser;
+		parser.setGameState(gameState);
+		validator.setGameState(gameState);
+		enPassantCastlingValidator.setGameState(gameState);
+		drawAnalyser.setGameState(gameState);
+		checkAnalyser.setGameState(gameState);
+		enPassantCastlingValidator.setMoveDatabase(moveDatabase);
+		drawAnalyser.setMoveDatabase(moveDatabase);
+		start();
+		this.hasStopped = new AtomicBoolean(false);
+	}
+
+	@Override
+	public void run() {
+		while (isOngoing()) {
+			try {
+				var event = events.take();
+				switch (event.getType()) {
+					case DRAW_REQUEST -> requestDraw(
+							event.getNotation().contains("white") ? WHITE : BLACK
+					);
+					case CLOSE -> stopGame();
+					case MOVE -> move(event.getNotation());
+				}
+			} catch(InterruptedException e) {
+				stopGame();
+			}
+		}
 	}
 
 	public Board board() {
 		return board;
 	}
 
+	public void move(String notation) {
+		if (hasStopped.get()) throw new IllegalStateException("Game is not ongoing");
+		var moveData = validator.validate(parser.parse(notation));
+		handleMove(moveData);
+	}
+
 	public void handleMove(MoveData data) {
-		if (hasStopped) throw new IllegalStateException("Game is not ongoing");
 
 		if (data.toFurtherCheck()) data.validate(enPassantCastlingValidator);
 		Map<Piece, Square> pieceMoves = data.getVariations();
@@ -67,21 +126,22 @@ public class ChessGame {
 
 		checkAnalyser.analyse(data);
 		moveDatabase.put(data);
-		gamesData.setColor(moveDatabase.turnColor());
+		gameState.setColor(moveDatabase.turnColor());
 
 		var notation = data.notation();
-		if (notation.contains("+")) listener.onCheck(gamesData.color());
+		if (notation.contains("+")) listener.onCheck(gameState.color());
 		else if (notation.contains("#")) {
-			this.hasStopped = false;
-			listener.onMate(gamesData.color());
+			listener.onMate(gameState.color());
+			stopGame();
 		} else {
 			var drawReason = drawAnalyser.lookForDraw();
 			if (drawReason != null) {
-				this.hasStopped = true;
 				listener.onDraw(drawReason);
+				stopGame();
 				return;
 			}
 		}
+		gameState.setColor(moveDatabase.turnColor());
 		listener.onMoveHandled();
 	}
 
@@ -90,17 +150,38 @@ public class ChessGame {
 	}
 
 	public boolean isOngoing() {
-		return !hasStopped;
+		return !hasStopped.get();
 	}
 
-	public void requestDraw() {
-		if (listener.onDrawRequest()) {
+	private void requestDraw(Color color) {
+		if (listener.onDrawRequest(color)) {
 			listener.onDraw(DrawReason.PLAYERS_DECISION);
-			hasStopped = true;
+			stopGame();
 		}
 	}
 
 	public ChessEventListener listener() {
 		return listener;
+	}
+	
+	private void stopGame() {
+		if (!isInterrupted()) super.interrupt();
+		hasStopped.set(true);
+		moveDatabase = null;
+		listener = null;
+		parser = null;
+		validator = null;
+		gameState = null;
+		board = null;
+		drawAnalyser = null;
+		enPassantCastlingValidator = null;
+		checkAnalyser = null;
+		events = null;
+	}
+
+	@Override
+	public void interrupt() {
+		super.interrupt();
+		stopGame();
 	}
 }
