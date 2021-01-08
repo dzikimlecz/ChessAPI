@@ -30,6 +30,7 @@ public class ChessEvent {
 		DRAW_REQUEST, CLOSE, MOVE
 	}
 
+
 	public Type getType() {
 		return type;
 	}
