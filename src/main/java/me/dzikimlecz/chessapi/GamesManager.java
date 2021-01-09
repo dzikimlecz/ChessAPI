@@ -41,7 +41,14 @@ public class GamesManager<K> {
 	}
 
 	public void move(K gameKey, String notation) {
-
+		var game = getGame(gameKey);
+		notation = notation.replaceAll("[^\\S0-9]", "");
+		try {
+			var chessEvent = new ChessEvent(notation);
+			game.handleEvent(chessEvent);
+		} catch(Exception e) {
+			throw new IllegalArgumentException("Illegal notation");
+		}
 	}
 
 	@NotNull
