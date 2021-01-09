@@ -51,11 +51,12 @@ public class ChessGame extends Thread {
 	                 IMoveAnalyser checkAnalyser,
 	                 IDrawAnalyser drawAnalyser) {
 		super();
+		this.events = new LinkedBlockingQueue<>(100);
 		this.board = new Board();
 		this.gameState = new GameState();
 		gameState.setBoard(board);
 		gameState.setColor(WHITE);
-		this.events = new LinkedBlockingQueue<>(100);
+		this.hasStopped = new AtomicBoolean(false);
 		this.moveDatabase = moveDatabase;
 		this.listener = listener;
 		this.drawAnalyser = drawAnalyser;
@@ -71,13 +72,13 @@ public class ChessGame extends Thread {
 		enPassantCastlingValidator.setMoveDatabase(moveDatabase);
 		drawAnalyser.setMoveDatabase(moveDatabase);
 		start();
-		this.hasStopped = new AtomicBoolean(false);
 	}
 
 	@Override
 	public void run() {
-		while (isOngoing()) {
-			try {
+		try {
+			Thread.sleep(100);
+			while (isOngoing()) {
 				var event = events.take();
 				switch (event.getType()) {
 					case DRAW_REQUEST -> requestDraw(
@@ -86,13 +87,14 @@ public class ChessGame extends Thread {
 					case CLOSE -> stopGame();
 					case MOVE -> move(event.getNotation());
 				}
-			} catch(InterruptedException e) {
-				stopGame();
 			}
+		} catch(InterruptedException e) {
+			stopGame();
 		}
 	}
 
 	public void handleEvent(ChessEvent event) throws InterruptedException {
+		if (hasStopped.get()) throw new IllegalStateException("Game is not ongoing");
 		events.put(event);
 	}
 
@@ -102,7 +104,6 @@ public class ChessGame extends Thread {
 	}
 
 	private void move(String notation) {
-		if (hasStopped.get()) throw new IllegalStateException("Game is not ongoing");
 		var moveData = validator.validate(parser.parse(notation));
 		handleMove(moveData);
 	}
@@ -136,11 +137,14 @@ public class ChessGame extends Thread {
 		var notation = data.notation();
 		if (notation.contains("+")) listener.onCheck(gameState.color());
 		else if (notation.contains("#")) {
+			listener.onMoveHandled();
 			listener.onMate(gameState.color());
 			stopGame();
+			return;
 		} else {
 			var drawReason = drawAnalyser.lookForDraw();
 			if (drawReason != null) {
+				listener.onMoveHandled();
 				listener.onDraw(drawReason);
 				stopGame();
 				return;

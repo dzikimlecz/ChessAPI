@@ -10,3 +10,4 @@ gradlew
 gradlew.bat
 *.iml
 .idea/
+/src/main/java/me/dzikimlecz/_MAIN_.java
