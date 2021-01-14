@@ -72,10 +72,10 @@ public class MoveParser implements IMoveParser {
 
 		char newKingLine = (isCastlingShort) ? 'g' : 'c';
 		char newRookLine = (isCastlingShort) ? 'f' : 'd';
-		return new LinkedHashMap<>(Map.of(
+		return Map.of(
 				king, board.square(newKingLine, row),
 				rook, board.square(newRookLine, row)
-		));
+		);
 	}
 
 	private Map<Piece, Square> parseSimplePawnMove(String notation, Color color) {
@@ -109,7 +109,7 @@ public class MoveParser implements IMoveParser {
 		return pieces.stream().filter(e -> {
 			char[] location = e.location();
 			return location[0] == startLine && location[1] == startRow;
-		}).collect(Collectors.toMap(e -> e, e -> destination, (a, b) -> b));
+		}).collect(Collectors.toUnmodifiableMap(e -> e, e -> destination, (a, b) -> b));
 	}
 
 	private Map<Piece, Square> parseSpecifiedPawnMove(String notation, Color color) {
@@ -127,7 +127,7 @@ public class MoveParser implements IMoveParser {
 		var piece = startSquare.piece();
 		if (piece == null || piece.getClass() != pieceType || piece.color() != color)
 			return Map.of();
-		return new HashMap<>(Map.of(piece, endSquare));
+		return Map.of(piece, endSquare);
 	}
 
 	@NotNull

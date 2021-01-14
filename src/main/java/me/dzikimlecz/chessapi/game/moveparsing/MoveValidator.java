@@ -87,8 +87,8 @@ public class MoveValidator implements IMoveValidator {
 	private MoveData validateCastling(MoveData moveData) {
 		Map<Piece, Square> map = moveData.getVariations();
 		var pieces = map.keySet().toArray();
-		King king = (King) pieces[0];
-		Rook rook = (Rook) pieces[1];
+		King king = (King) ((pieces[0] instanceof King) ? pieces[0] : pieces[1]);
+		Rook rook = (Rook) ((king == pieces[0]) ? pieces[1] : pieces[0]);
 		Square kingSquare = king.square();
 		Square rookSquare = rook.square();
 		boolean invalid = board.squaresBetween(kingSquare, map.get(king), true)
