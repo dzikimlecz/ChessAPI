@@ -1,6 +1,8 @@
 package me.dzikimlecz.chessapi;
 
 import me.dzikimlecz.chessapi.game.board.Color;
+import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
+import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 
 public interface ChessEventListener {
 	void onMate(Color winner);
@@ -9,4 +11,5 @@ public interface ChessEventListener {
 	default void onCheck(Color checked) {}
 	default void onIllegalMove() {}
 	default boolean onDrawRequest(Color requestor) {return false;}
+	Class<? extends Piece> onPawnExchange();
 }
