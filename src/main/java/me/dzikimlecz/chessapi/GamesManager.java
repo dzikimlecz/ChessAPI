@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class GamesManager<K> {
 	protected Map<K, ChessGame> games;
-	protected Map<ChessGame, GameInfo<?, ?>> gameInfoMap;
+	protected Map<ChessGame, GameInfo<K, ?>> gameInfoMap;
 
 	public GamesManager() {
 		games = new HashMap<>();
@@ -64,11 +64,11 @@ public class GamesManager<K> {
 		throw noGameException;
 	}
 
-	public void attachInfo(K gameKey, @NotNull GameInfo<?, ?> info) {
+	public void attachInfo(K gameKey, @NotNull GameInfo<K, ?> info) {
 		this.gameInfoMap.put(getGame(gameKey), info);
 	}
 
-	public GameInfo<?, ?> getInfo(K gameKey) {
+	public GameInfo<K, ?> getInfo(K gameKey) {
 		return gameInfoMap.get(getGame(gameKey));
 	}
 
