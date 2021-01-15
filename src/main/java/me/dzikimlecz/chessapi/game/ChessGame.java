@@ -16,6 +16,7 @@ import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -24,6 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static me.dzikimlecz.chessapi.game.board.Color.*;
 
 public class ChessGame extends Thread {
+	private final IMoveAnalyser pawnExchangeAnalyser;
+	private final PawnExchangeProcessor pawnExchangeProcessor;
 	private MoveDatabase moveDatabase;
 	private ChessEventListener listener;
 	private IMoveParser parser;
@@ -38,7 +41,8 @@ public class ChessGame extends Thread {
 
 	public ChessGame(ChessEventListener listener) {
 		this(listener, new ListMoveDatabase(), new MoveParser(), new MoveValidator(),
-		     new EnPassantCastlingValidator(), new CheckAnalyser(), new DrawAnalyser());
+		     new EnPassantCastlingValidator(), new CheckAnalyser(), new DrawAnalyser(),
+		     new PawnExchangeAnalyser());
 		checkAnalyser.setValidator(validator);
 		drawAnalyser.setValidator(validator);
 	}
@@ -49,7 +53,8 @@ public class ChessGame extends Thread {
 	                 IMoveValidator validator,
 	                 IMoveValidator enPassantCastlingValidator,
 	                 IMoveAnalyser checkAnalyser,
-	                 IDrawAnalyser drawAnalyser) {
+	                 IDrawAnalyser drawAnalyser,
+	                 IMoveAnalyser pawnExchangeAnalyser) {
 		super();
 		this.events = new LinkedBlockingQueue<>(100);
 		this.board = new Board();
@@ -64,14 +69,21 @@ public class ChessGame extends Thread {
 		this.validator = validator;
 		this.enPassantCastlingValidator = enPassantCastlingValidator;
 		this.checkAnalyser = checkAnalyser;
+		this.pawnExchangeAnalyser = pawnExchangeAnalyser;
+		this.pawnExchangeProcessor = new PawnExchangeProcessor();
+		initProcessors();
+		start();
+	}
+
+	private void initProcessors() {
 		parser.setGameState(gameState);
 		validator.setGameState(gameState);
 		enPassantCastlingValidator.setGameState(gameState);
 		drawAnalyser.setGameState(gameState);
 		checkAnalyser.setGameState(gameState);
+		pawnExchangeAnalyser.setGameState(gameState);
 		enPassantCastlingValidator.setMoveDatabase(moveDatabase);
 		drawAnalyser.setMoveDatabase(moveDatabase);
-		start();
 	}
 
 	@Override
@@ -130,11 +142,17 @@ public class ChessGame extends Thread {
 			piece.moveTo(square);
 		});
 
+		pawnExchangeAnalyser.analyse(data);
+		var notation = data.notation();
+		if (notation.endsWith(":exchange")) {
+			@SuppressWarnings("all")
+			var piece = pieceMoves.keySet().stream().findFirst().get();
+			pawnExchangeProcessor.exchange(listener.onPawnExchange(), color(), pieceMoves.get(piece));
+		}
+
 		checkAnalyser.analyse(data);
 		moveDatabase.put(data);
 		gameState.setColor(moveDatabase.turnColor());
-
-		var notation = data.notation();
 		if (notation.contains("+")) listener.onCheck(gameState.color());
 		else if (notation.contains("#")) {
 			listener.onMoveHandled();
