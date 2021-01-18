@@ -38,6 +38,9 @@ public class MoveValidator implements IMoveValidator {
 			if (status == 0) iterator.remove();
 			else if (status < 0) moveData.setToFurtherCheck(true);
 		}
+		var values = moveVariations.values();
+		if (values.stream().distinct().count() < values.size())
+			values.clear();
 		return moveData;
 	}
 
@@ -60,10 +63,10 @@ public class MoveValidator implements IMoveValidator {
 	}
 
 	private int validatePawnMove(Pawn pawn, Square square) {
-		final Square pawnSquare = pawn.square();
 		final int rowDelta = (color == Color.WHITE) ? 1 : -1;
 		final int opponentsFirstFreeRow = (color == Color.BLACK) ? 3 : 6;
-		final Square squareBefore = board.square(square.line(), square.row() - rowDelta);
+		var pawnSquare = pawn.square();
+		var squareBefore = board.square(square.line(), square.row() - rowDelta);
 		//taking move:
 		if (pawnSquare.line() != square.line()) {
 			Piece piece = square.piece();
@@ -77,10 +80,9 @@ public class MoveValidator implements IMoveValidator {
 			}
 			return 1;
 		}
-		else if (Math.abs(pawnSquare.row() - square.row()) == 2) {
-			boolean valid = squareBefore.piece() == null;
-			if (!valid) return 0;
-		}
+		//
+		else if (Math.abs(pawnSquare.row() - square.row()) == 2 && squareBefore.piece() != null)
+			return 0;
 		return 1;
 	}
 
