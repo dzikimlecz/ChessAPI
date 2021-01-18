@@ -38,10 +38,9 @@ public class EnPassantCastlingValidator implements IMoveValidator {
 		}
 		var lastMovedPiece = (Pawn) lastMovePieces.stream().findFirst().get();
 		var destinationSquare = variations.get(variations.keySet().stream().findFirst().get());
-		if (
-				lastMovedPiece.movesCount() != 1
-				|| lastMovedPiece.square().line() != destinationSquare.line()
-		) variations.clear();
+		if (lastMovedPiece.movesCount() != 1
+				|| lastMovedPiece.square().line() != destinationSquare.line())
+			variations.clear();
 	}
 
 	public void validateCastling(MoveData data) {
