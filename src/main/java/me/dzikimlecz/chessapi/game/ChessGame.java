@@ -14,9 +14,9 @@ import me.dzikimlecz.chessapi.ChessEventListener;
 import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
+import org.jetbrains.annotations.Contract;
 
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -132,9 +132,7 @@ public class ChessGame extends Thread {
 		pieceMoves.forEach((piece, square) -> {
 			var targetSquarePiece = square.piece();
 			if (targetSquarePiece != null) {
-				if (!(targetSquarePiece instanceof Takeable))
-					throw new IllegalStateException("Cannot take non-takeable piece.");
-				((Takeable) targetSquarePiece).beTaken();
+				take(targetSquarePiece);
 				var newNotation = new StringBuilder(data.notation())
 						.insert(1, 'x');
 				data.setNotation(newNotation.toString());
@@ -170,6 +168,13 @@ public class ChessGame extends Thread {
 		}
 		gameState.setColor(moveDatabase.turnColor());
 		listener.onMoveHandled();
+	}
+
+	@Contract("null -> fail")
+	private void take(Piece targetSquarePiece) {
+		if (!(targetSquarePiece instanceof Takeable))
+			throw new IllegalStateException("Cannot take non-takeable piece.");
+		((Takeable) targetSquarePiece).beTaken();
 	}
 
 	public Color color() {
