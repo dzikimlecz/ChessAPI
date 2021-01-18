@@ -84,10 +84,11 @@ public class MoveParser implements IMoveParser {
 
 	private Map<Piece, Square> parseSimplePieceMove(String notation, Color color) {
 		Map<Piece, Square> moves = new HashMap<>();
-		final char line = notation.charAt(1);
-		final int row = notation.charAt(2) - '0';
-		final var square = board.square(line, row);
-		final var pieceType = getPieceType(notation);
+		char line = notation.charAt(1);
+		//row is an integer, needs to be converted from char
+		int row = notation.charAt(2) - '0';
+		var square = board.square(line, row);
+		var pieceType = getPieceType(notation);
 		board.getPiecesMovingTo(line, row, pieceType, color).forEach(e -> moves.put(e, square));
 		return moves;
 	}
