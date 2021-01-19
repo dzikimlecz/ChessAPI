@@ -1,7 +1,10 @@
 package me.dzikimlecz.chessapi.game.board;
 
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * A single square on the checkerboard.
@@ -30,7 +33,7 @@ public class Square {
 	 * @param row raw row (n -> n + 1)
 	 * @param color color of the square
 	 */
-	public Square(int line, int row, Color color) {
+	public Square(int line, int row, @NotNull Color color) {
 		this.line = (char) (line + 'a');
 		this.row = 8 - row;
 		this.color = color;
@@ -76,5 +79,19 @@ public class Square {
 	@Override
 	public String toString() {
 		return String.format("[%c%d]", line, row);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Square)) return false;
+		Square square = (Square) o;
+		return line == square.line && row == square.row && color == square.color && Objects.equals(
+				containedPiece, square.containedPiece);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(line, row, color, containedPiece);
 	}
 }

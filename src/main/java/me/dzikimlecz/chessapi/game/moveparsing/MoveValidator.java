@@ -8,8 +8,10 @@ import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MoveValidator implements IMoveValidator {
 	private GameState gameState;
@@ -38,9 +40,10 @@ public class MoveValidator implements IMoveValidator {
 			if (status == 0) iterator.remove();
 			else if (status < 0) moveData.setToFurtherCheck(true);
 		}
-		var values = moveVariations.values();
-		if (values.stream().distinct().count() < values.size())
-			values.clear();
+		var values = new ArrayList<>(moveVariations.values());
+		boolean unambigious = values.stream()
+				.anyMatch(square -> values.indexOf(square) != values.lastIndexOf(square));
+		if (unambigious) moveVariations.clear();
 		return moveData;
 	}
 
