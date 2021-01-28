@@ -16,7 +16,6 @@ import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import org.jetbrains.annotations.Contract;
 
-
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -94,7 +93,7 @@ public class ChessGame extends Thread {
 				var event = events.take();
 				switch (event.getType()) {
 					case DRAW_REQUEST -> requestDraw(
-							event.getNotation().contains("white") ? WHITE : BLACK
+							event.getNotation().contains(WHITE.name().toLowerCase()) ? WHITE : BLACK
 					);
 					case CLOSE -> stopGame();
 					case MOVE -> move(event.getNotation());

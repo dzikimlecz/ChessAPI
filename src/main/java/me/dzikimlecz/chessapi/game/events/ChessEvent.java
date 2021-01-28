@@ -9,10 +9,10 @@ public class ChessEvent {
 			"([PBGSNRWQHK]?([a-h][1-8]){1,2})|([Oo0](-[Oo0]){1,2})"
 	);
 	private static final Pattern closePattern = Pattern.compile(
-			"\\s*close\\s\\S*"
+			"close"
 	);
 	private static final Pattern drawRequestPattern = Pattern.compile(
-			"\\s*draw\\s*(white)|(black)\\s*"
+			"(draw)(white)|(black)"
 	);
 
 	private final Type type;
