@@ -60,11 +60,11 @@ There are also more optional features, but to create basic working implementatio
         }
     }
 
-###Useful features
+### Useful features
 Class 
 [GameInfo](https://github.com/dzikimlecz/ChessAPI/blob/main/src/main/java/me/dzikimlecz/chessapi/GameInfo.java)
 lets you save info about players in the game, quite useful.
-####Example
+#### Example
     manager.attachInfo(new GameInfo<>("Coffee", 21, 37));
 * First parameter - gameKey
 * Second and third parameter - white and black players
