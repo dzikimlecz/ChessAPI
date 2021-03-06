@@ -44,6 +44,82 @@ public final class ChessGame extends Thread {
 	private final BlockingQueue<ChessEvent> events;
 	private final AtomicBoolean hasStopped;
 
+	public static final class Builder {
+		private static long games = 0;
+		private IMoveAnalyser pawnExchangeAnalyser;
+		private MoveDatabase moveDatabase;
+		private final ChessEventListener listener;
+		private IMoveParser parser;
+		private IMoveValidator validator;
+		private IDrawAnalyser drawAnalyser;
+		private IMoveValidator enPassantCastlingValidator;
+		private IMoveAnalyser checkAnalyser;
+
+		public Builder(@NotNull ChessEventListener chessGameEventListener) {
+			this.listener = chessGameEventListener;
+		}
+
+		public Builder pawnExchangeAnalyser(@NotNull IMoveAnalyser pawnExchangeAnalyser) {
+			this.pawnExchangeAnalyser = pawnExchangeAnalyser;
+			return this;
+		}
+
+		public Builder moveDatabase(@NotNull MoveDatabase moveDatabase) {
+			this.moveDatabase = moveDatabase;
+			return this;
+		}
+
+		public Builder parser(@NotNull IMoveParser parser) {
+			this.parser = parser;
+			return this;
+		}
+
+		public Builder validator(@NotNull IMoveValidator validator) {
+			this.validator = validator;
+			return this;
+		}
+
+		public Builder drawAnalyser(@NotNull IDrawAnalyser drawAnalyser) {
+			this.drawAnalyser = drawAnalyser;
+			return this;
+		}
+
+		public Builder enPassantCastlingValidator(@NotNull IMoveValidator enPassantCastlingValidator) {
+			this.enPassantCastlingValidator = enPassantCastlingValidator;
+			return this;
+		}
+
+		public Builder checkAnalyser(@NotNull IMoveAnalyser checkAnalyser) {
+			this.checkAnalyser = checkAnalyser;
+			return this;
+		}
+
+		public ChessGame build() {
+			validator = Objects.requireNonNullElseGet(validator, MoveValidator::new);
+			var game = new ChessGame(
+					listener,
+					Objects.requireNonNullElseGet(moveDatabase, ListMoveDatabase::new),
+					Objects.requireNonNullElseGet(parser, MoveParser::new),
+					validator,
+					Objects.requireNonNullElseGet(enPassantCastlingValidator,
+					                              EnPassantCastlingValidator::new),
+					Objects.requireNonNullElseGet(checkAnalyser, () -> {
+						var checkAnalyser = new CheckAnalyser();
+						checkAnalyser.setValidator(validator);
+						return checkAnalyser;
+					}),
+					Objects.requireNonNullElseGet(drawAnalyser, () -> {
+						var drawAnalyser = new DrawAnalyser();
+						drawAnalyser.setValidator(validator);
+						return drawAnalyser;
+					}),
+					Objects.requireNonNullElseGet(pawnExchangeAnalyser, PawnExchangeAnalyser::new)
+			);
+			game.setName("Game: %x".formatted(Long.hashCode(games++)));
+			return game;
+		}
+	}
+
 	public ChessGame(ChessEventListener listener) {
 		this(listener, new ListMoveDatabase(), new MoveParser(), new MoveValidator(),
 		     new EnPassantCastlingValidator(), new CheckAnalyser(), new DrawAnalyser(),
@@ -53,14 +129,14 @@ public final class ChessGame extends Thread {
 		drawAnalyser.setValidator(validator);
 	}
 
-	public ChessGame(ChessEventListener listener,
-	                 MoveDatabase moveDatabase,
-	                 IMoveParser parser,
-	                 IMoveValidator validator,
-	                 IMoveValidator enPassantCastlingValidator,
-	                 IMoveAnalyser checkAnalyser,
-	                 IDrawAnalyser drawAnalyser,
-	                 IMoveAnalyser pawnExchangeAnalyser) {
+	private ChessGame(@NotNull ChessEventListener listener,
+	                 @NotNull MoveDatabase moveDatabase,
+	                 @NotNull IMoveParser parser,
+	                 @NotNull IMoveValidator validator,
+	                 @NotNull IMoveValidator enPassantCastlingValidator,
+	                 @NotNull IMoveAnalyser checkAnalyser,
+	                 @NotNull IDrawAnalyser drawAnalyser,
+	                 @NotNull IMoveAnalyser pawnExchangeAnalyser) {
 		super();
 		this.events = new ArrayBlockingQueue<>(100);
 		this.board = new Board();
