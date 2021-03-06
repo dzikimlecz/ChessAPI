@@ -3,7 +3,7 @@ package me.dzikimlecz.chessapi.game.moveanalysing;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.chessapi.DrawReason;
 import me.dzikimlecz.chessapi.game.board.Board;
-import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
 import me.dzikimlecz.chessapi.game.movestoring.GameState;
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static me.dzikimlecz.chessapi.game.board.square.Color.BLACK;
-import static me.dzikimlecz.chessapi.game.board.square.Color.WHITE;
+import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
+import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
 public class DrawAnalyser implements IDrawAnalyser {
 	private MoveDatabase moveDatabase;

@@ -1,15 +1,15 @@
 package me.dzikimlecz.chessapi.game.movestoring;
 
 import me.dzikimlecz.chessapi.game.board.pieces.Pawn;
-import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.Color;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static me.dzikimlecz.chessapi.game.board.square.Color.BLACK;
-import static me.dzikimlecz.chessapi.game.board.square.Color.WHITE;
+import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
+import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
 public class ListMoveDatabase implements MoveDatabase {
 

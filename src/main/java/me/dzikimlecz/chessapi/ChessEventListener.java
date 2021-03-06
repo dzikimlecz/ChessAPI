@@ -1,6 +1,6 @@
 package me.dzikimlecz.chessapi;
 
-import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 
 public interface ChessEventListener {

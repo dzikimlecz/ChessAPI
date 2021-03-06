@@ -1,15 +1,14 @@
 package me.dzikimlecz.chessapi.game.board;
 
 import me.dzikimlecz.chessapi.game.board.pieces.*;
-import me.dzikimlecz.chessapi.game.board.square.Color;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static me.dzikimlecz.chessapi.game.board.square.Color.BLACK;
-import static me.dzikimlecz.chessapi.game.board.square.Color.WHITE;
+import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
+import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
 class DefaultBoard extends Board {
 

@@ -1,4 +1,4 @@
-package me.dzikimlecz.chessapi.game.board.square;
+package me.dzikimlecz.chessapi.game.board;
 
 import org.jetbrains.annotations.Contract;
 

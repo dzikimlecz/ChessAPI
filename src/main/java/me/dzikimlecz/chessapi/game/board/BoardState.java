@@ -4,7 +4,6 @@ import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.King;
 import me.dzikimlecz.chessapi.game.board.pieces.Knight;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
-import me.dzikimlecz.chessapi.game.board.square.Color;
 import me.dzikimlecz.chessapi.game.board.square.Square;
 import org.jetbrains.annotations.NotNull;
 

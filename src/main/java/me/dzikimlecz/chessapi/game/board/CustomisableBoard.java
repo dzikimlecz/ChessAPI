@@ -1,14 +1,10 @@
 package me.dzikimlecz.chessapi.game.board;
 
 import me.dzikimlecz.chessapi.game.board.pieces.*;
-import me.dzikimlecz.chessapi.game.board.square.Color;
 import me.dzikimlecz.chessapi.game.board.square.Square;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static me.dzikimlecz.chessapi.game.board.square.Color.*;
+import static me.dzikimlecz.chessapi.game.board.Color.*;
 
 class CustomisableBoard extends Board {
 

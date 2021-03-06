@@ -1,6 +1,6 @@
 package me.dzikimlecz.chessapi.game.board.pieces;
 
-import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.Color;
 
 /**
  * Abstract class being an interface for working with pieces from outside of the chess API
@@ -39,10 +39,11 @@ public abstract class ChessPiece {
 	 */
 	public abstract char[] location();
 
+
+	//prohibits overriding in subclasses
 	@Override public final boolean equals(Object o) {
 		return super.equals(o);
 	}
-
 	@Override public final int hashCode() {
 		return super.hashCode();
 	}

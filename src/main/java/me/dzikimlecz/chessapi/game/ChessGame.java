@@ -5,9 +5,8 @@ import me.dzikimlecz.chessapi.DrawReason;
 import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Movable;
-import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.square.Square;
-import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.board.pieces.Takeable;
 import me.dzikimlecz.chessapi.game.events.ChessEvent;
 import me.dzikimlecz.chessapi.game.moveanalysing.*;
@@ -27,8 +26,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static me.dzikimlecz.chessapi.game.board.square.Color.BLACK;
-import static me.dzikimlecz.chessapi.game.board.square.Color.WHITE;
+import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
+import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
 public final class ChessGame extends Thread {
 	private final IMoveAnalyser pawnExchangeAnalyser;

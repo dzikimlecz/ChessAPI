@@ -1,12 +1,12 @@
 package me.dzikimlecz.chessapi;
 
-import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-import static me.dzikimlecz.chessapi.game.board.square.Color.WHITE;
+import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
 public class GameInfo<Key, Player> {
 	private final Key key;

@@ -6,8 +6,7 @@ import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveParser;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
 import me.dzikimlecz.chessapi.game.moveanalysing.IMoveAnalyser;
-import me.dzikimlecz.chessapi.game.board.square.Color;
-import me.dzikimlecz.chessapi.game.board.pieces.Piece;
+import me.dzikimlecz.chessapi.game.board.Color;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package me.dzikimlecz.chessapi.game.movestoring;
 
-import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.Color;
 
 import java.util.List;
 import java.util.stream.Stream;

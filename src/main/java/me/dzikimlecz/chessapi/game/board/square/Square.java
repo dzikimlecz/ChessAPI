@@ -1,7 +1,7 @@
 package me.dzikimlecz.chessapi.game.board.square;
 
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
-import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
