@@ -1,5 +1,6 @@
 package me.dzikimlecz.chessapi.game.moveanalysing;
 
+import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Pawn;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
@@ -47,7 +48,7 @@ public class EnPassantCastlingValidator implements IMoveValidator {
 		var moves = moveDatabase.getAllMoves(data.color());
 		var variations = data.getVariations();
 		for (MoveData moveData : moves) {
-			for (Piece piece : variations.keySet()) {
+			for (ChessPiece piece : variations.keySet()) {
 				if (moveData.getVariations().containsKey(piece)) {
 					variations.clear();
 					return;

@@ -2,16 +2,13 @@ package me.dzikimlecz.chessapi.game.moveparsing;
 
 import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.BoardState;
-import me.dzikimlecz.chessapi.game.board.Color;
-import me.dzikimlecz.chessapi.game.board.Square;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
+import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class MoveValidator implements IMoveValidator {
 	private GameState gameState;
@@ -30,29 +27,31 @@ public class MoveValidator implements IMoveValidator {
 		board = gameState.board();
 		color = gameState.color();
 		boardState = board.getState();
-		Map<Piece, Square> moveVariations = moveData.getVariations();
+		var moveVariations = moveData.getVariations();
 
 		if (moveData.doingCastling()) return validateCastling(moveData);
 
-		for (Iterator<Piece> iterator = moveVariations.keySet().iterator(); iterator.hasNext();) {
-			Piece piece = iterator.next();
+		for (var iterator = moveVariations.keySet().iterator(); iterator.hasNext();) {
+			var piece = iterator.next();
 			int status = validStatus(piece, moveVariations.get(piece));
 			if (status == 0) iterator.remove();
 			else if (status < 0) moveData.setToFurtherCheck(true);
 		}
 		var values = new ArrayList<>(moveVariations.values());
-		boolean unambigious = values.stream()
+		boolean ambiguous = values.stream()
 				.anyMatch(square -> values.indexOf(square) != values.lastIndexOf(square));
-		if (unambigious) moveVariations.clear();
+		if (ambiguous) moveVariations.clear();
 		return moveData;
 	}
 
-	private int validStatus(Piece piece, Square square) {
+	private int validStatus(ChessPiece piece, Square square) {
 
 		if (boardState.isSquareOccupied(square, color)) return 0;
 
 		if (!(piece instanceof Knight)
-				&& boardState.anyPiecesBetween(piece.square(), square))  return 0;
+				&& boardState.anyPiecesBetween(
+						board.square(piece.location()[0], piece.location()[1]), square))
+			return 0;
 
 		if (!(piece instanceof King) && (boardState.isPieceDefendingKing(piece) ||
 				boardState.isKingAttacked(color))) return 0;
@@ -72,7 +71,7 @@ public class MoveValidator implements IMoveValidator {
 		var squareBefore = board.square(square.line(), square.row() - rowDelta);
 		//taking move:
 		if (pawnSquare.line() != square.line()) {
-			Piece piece = square.piece();
+			var piece = square.piece();
 			if(piece instanceof King) return 0;
 			if (piece == null) {
 				var pieceBefore = squareBefore.piece();
@@ -90,12 +89,12 @@ public class MoveValidator implements IMoveValidator {
 	}
 
 	private MoveData validateCastling(MoveData moveData) {
-		Map<Piece, Square> map = moveData.getVariations();
+		var map = moveData.getVariations();
 		var pieces = map.keySet().toArray();
 		King king = (King) ((pieces[0] instanceof King) ? pieces[0] : pieces[1]);
 		Rook rook = (Rook) ((king == pieces[0]) ? pieces[1] : pieces[0]);
-		Square kingSquare = king.square();
-		Square rookSquare = rook.square();
+		var kingSquare = king.square();
+		var rookSquare = rook.square();
 		boolean invalid = board.squaresBetween(kingSquare, map.get(king), true)
 				.stream().anyMatch(square -> boardState.isSquareAttacked(square, color))
 				|| boardState.anyPiecesBetween(kingSquare, rookSquare);

@@ -3,8 +3,8 @@ package me.dzikimlecz.chessapi.game.moveanalysing;
 import me.dzikimlecz.chessapi.game.board.pieces.*;
 import me.dzikimlecz.chessapi.DrawReason;
 import me.dzikimlecz.chessapi.game.board.Board;
-import me.dzikimlecz.chessapi.game.board.Color;
-import me.dzikimlecz.chessapi.game.board.Square;
+import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
 import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
-import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
+import static me.dzikimlecz.chessapi.game.board.square.Color.BLACK;
+import static me.dzikimlecz.chessapi.game.board.square.Color.WHITE;
 
 public class DrawAnalyser implements IDrawAnalyser {
 	private MoveDatabase moveDatabase;
@@ -69,7 +69,7 @@ public class DrawAnalyser implements IDrawAnalyser {
 	private boolean staleMate() {
 		if (whiteMoves.size() < 10) return false;
 		Color color = gameState.color();
-		List<Piece> pieces = new ArrayList<>();
+		List<ChessPiece> pieces = new ArrayList<>();
 		for (int row = 1; row <= 8; row++) {
 			for (char line = 'a'; line <= 'h'; line++) {
 				var piece = board.square(line, row).piece();
@@ -77,10 +77,12 @@ public class DrawAnalyser implements IDrawAnalyser {
 					pieces.add(piece);
 			}
 		}
-		Map<Piece, Square> possibleResponses = new HashMap<>();
-		for (Piece piece : pieces) {
-			var pieceSquare = piece.square();
-			var moveDeltas = piece.moveDeltas();
+		Map<ChessPiece, Square> possibleResponses = new HashMap<>();
+		for (ChessPiece piece : pieces) {
+			var pieceSquare = board.square(piece.location()[0], piece.location()[1]);
+			if (!(piece instanceof Movable)) continue;
+			var movablePiece = (Movable) piece;
+			var moveDeltas = movablePiece.moveDeltas();
 			for (int[] moveDelta : moveDeltas)
 				possibleResponses.put(piece, board.getSquareByDelta(pieceSquare, moveDelta));
 		}
@@ -93,13 +95,13 @@ public class DrawAnalyser implements IDrawAnalyser {
 	}
 
 	private boolean deadPosition() {
-		List<Piece> whitePieces = new ArrayList<>();
-		List<Piece> blackPieces = new ArrayList<>();
+		List<ChessPiece> whitePieces = new ArrayList<>();
+		List<ChessPiece> blackPieces = new ArrayList<>();
 		for (int row = 1; row <= 8; row++) {
 			for (char line = 'a'; line <= 'h'; line++) {
 				var piece = board.square(line, row).piece();
 				if (piece != null) {
-					List<Piece> list = (piece.color() == WHITE) ? whitePieces : blackPieces;
+					var list = (piece.color() == WHITE) ? whitePieces : blackPieces;
 					list.add(piece);
 				}
 			}
@@ -116,21 +118,23 @@ public class DrawAnalyser implements IDrawAnalyser {
 		return deadPieceSet(whitePieces, blackPieces);
 	}
 
-	private boolean deadPieceSet(List<Piece> whites, List<Piece> blacks) {
+	private boolean deadPieceSet(List<ChessPiece> whites, List<ChessPiece> blacks) {
 		if (whites.size() == blacks.size()) {
 			if (whites.size() == 1) return true;
 			if (whites.size() == 2) {
-				Optional<Piece> whiteBishopOpt =
+				Optional<ChessPiece> whiteBishopOpt =
 						whites.stream().filter(piece -> piece instanceof Bishop).findAny();
 				if (whiteBishopOpt.isEmpty()) return false;
-				Optional<Piece> blackBishopOpt =
+				Optional<ChessPiece> blackBishopOpt =
 						blacks.stream().filter(piece -> piece instanceof Bishop).findAny();
 				if (blackBishopOpt.isEmpty()) return false;
 				return blackBishopOpt.get().color() == whiteBishopOpt.get().color();
 			}
 			return false;
 		}
-		List<Piece> notSingletonList;
+		//list used when 1 of the players has only a king, contains pieces belonging to the
+		// opponent of that player.
+		List<ChessPiece> notSingletonList;
 		if (whites.size() == 1) notSingletonList = blacks;
 		else if (blacks.size() == 1) notSingletonList = whites;
 		else return false;
@@ -140,11 +144,12 @@ public class DrawAnalyser implements IDrawAnalyser {
 						piece instanceof Bishop || piece instanceof King);
 	}
 
-	private boolean pawnsBlocked(List<Piece> pieces) {
+	private boolean pawnsBlocked(List<ChessPiece> pieces) {
 		return pieces.stream()
 				.filter(piece -> piece instanceof Pawn)
+				.map(piece -> (Pawn) piece)
 				.allMatch(pawn -> {
-					Map<Piece, Square> variations = new HashMap<>();
+					Map<Pawn, Square> variations = new HashMap<>();
 					pawn.moveDeltas()
 							.forEach(delta -> variations.put(
 									pawn, board.getSquareByDelta(pawn.square(), delta))
@@ -155,7 +160,7 @@ public class DrawAnalyser implements IDrawAnalyser {
 				});
 	}
 
-	private boolean anyRooksOrQueens(List<Piece> pieces) {
+	private boolean anyRooksOrQueens(List<ChessPiece> pieces) {
 		return pieces.stream().anyMatch(piece -> piece instanceof Rook || piece instanceof Queen);
 	}
 }

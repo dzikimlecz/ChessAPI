@@ -1,5 +1,6 @@
-package me.dzikimlecz.chessapi.game.board;
+package me.dzikimlecz.chessapi.game.board.square;
 
+import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +26,7 @@ public class Square {
 	/**
 	 * Piece staying in the square, if there isn't one present its value is {@code null}
 	 */
-	@Nullable private Piece containedPiece;
+	private @Nullable ChessPiece containedPiece;
 
 	/**
 	 * Initializes square and sets location converting raw coordinates
@@ -45,7 +46,7 @@ public class Square {
 	 * @return false if {@code piece} and {@code containedPiece} are both equal or both not equal
 	 * to {@code null}. Otherwise returns false and not changes contained piece.
 	 */
-	public boolean putPiece(@Nullable Piece piece) {
+	public boolean putPiece(@Nullable ChessPiece piece) {
 		if ((containedPiece != null) == (piece != null)) return false;
 		containedPiece = piece;
 		return true;
@@ -56,7 +57,7 @@ public class Square {
 	 * @return piece lying on the square if present, null otherwise.
 	 */
 	@Nullable
-	public Piece piece() {
+	public ChessPiece piece() {
 		return containedPiece;
 	}
 

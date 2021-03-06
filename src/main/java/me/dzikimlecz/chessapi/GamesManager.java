@@ -1,7 +1,7 @@
 package me.dzikimlecz.chessapi;
 
 import me.dzikimlecz.chessapi.game.ChessGame;
-import me.dzikimlecz.chessapi.game.board.Color;
+import me.dzikimlecz.chessapi.game.board.square.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.events.ChessEvent;
@@ -73,7 +73,7 @@ public class GamesManager<K> {
 	}
 
 	public ChessPiece[][] read(K gameKey) {
-		Piece[][] pieces = new Piece[8][8];
+		ChessPiece[][] pieces = new Piece[8][8];
 		ChessGame game = games.get(gameKey);
 		if (game == null) return null;
 		var board = game.board();

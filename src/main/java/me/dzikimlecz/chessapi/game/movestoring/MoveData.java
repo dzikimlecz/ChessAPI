@@ -1,10 +1,12 @@
 package me.dzikimlecz.chessapi.game.movestoring;
 
-import me.dzikimlecz.chessapi.game.board.Square;
+import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
+import me.dzikimlecz.chessapi.game.board.pieces.Movable;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveParser;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
 import me.dzikimlecz.chessapi.game.moveanalysing.IMoveAnalyser;
-import me.dzikimlecz.chessapi.game.board.Color;
+import me.dzikimlecz.chessapi.game.board.square.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 
 import java.util.HashMap;
@@ -13,14 +15,16 @@ import java.util.Objects;
 
 public class MoveData {
 	private String notation;
-	private final Map<Piece, Square> variations;
+	private final Map<ChessPiece, Square> variations;
 	private final Color color;
 	private boolean toFurtherCheck;
 	private final boolean doingCastling;
 
-	public MoveData(String notation, Map<? extends Piece, Square> variations, Color color) {
+	public MoveData(String notation, Map<? extends ChessPiece, Square> variations, Color color) {
 		this.notation = notation;
 		this.doingCastling = IMoveParser.castling.matcher(notation).matches();
+		if (variations.keySet().stream().anyMatch(piece -> !(piece instanceof Movable)))
+			throw new IllegalArgumentException("Can't put non-movable piece to move data");
 		this.variations = new HashMap<>(variations);
 		this.color = color;
 	}
@@ -53,7 +57,7 @@ public class MoveData {
 		this.notation = notation;
 	}
 
-	public Map<Piece, Square> getVariations() {
+	public Map<ChessPiece, Square> getVariations() {
 		return variations;
 	}
 

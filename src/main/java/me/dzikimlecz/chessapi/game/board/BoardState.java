@@ -1,8 +1,11 @@
 package me.dzikimlecz.chessapi.game.board;
 
+import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.King;
 import me.dzikimlecz.chessapi.game.board.pieces.Knight;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
+import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -27,16 +30,17 @@ public class BoardState {
 				attackedColor.opposite()
 		).stream().anyMatch(
 				opponentPiece -> opponentPiece.getClass() == Knight.class
-						|| noPiecesBetween(square, opponentPiece.square())
+						|| noPiecesBetween(square, board.square(opponentPiece.location()[0],
+						                                        opponentPiece.location()[1]))
 		);
 	}
 
-	public boolean isPieceDefendingKing(Piece piece) {
+	public boolean isPieceDefendingKing(ChessPiece piece) {
 		Color color = piece.color();
 		King king = board.getKing(color);
 		Color oppositeColor = color.opposite();
 
-		List<Piece> opponentPiecesPinningToKing =
+		List<ChessPiece> opponentPiecesPinningToKing =
 				board.getPiecesMovingTo(
 						king.square(),
 						null,
@@ -45,20 +49,24 @@ public class BoardState {
 						.filter(opponentPiece -> opponentPiece.getClass() != Knight.class)
 						.filter(opponentPiece ->
 								        countOfPiecesBetween(
-										        opponentPiece.square(),
+										        board.square(opponentPiece.location()[0],
+										                     opponentPiece.location()[1]),
 										        king.square()
 								        ) == 1)
 						.collect(Collectors.toList());
-		List<Piece> attackingOpponentPieces =
+		List<ChessPiece> attackingOpponentPieces =
 				board.getPiecesMovingTo(
-						piece.square(),
+						board.square(piece.location()[0],
+						             piece.location()[1]),
 						null,
 						oppositeColor
 				).stream()
 						.filter(opponentPiece -> opponentPiece.getClass() != Knight.class)
 						.filter(opponentPiece -> noPiecesBetween(
-								piece.square(),
-								opponentPiece.square()))
+								board.square(piece.location()[0],
+								             piece.location()[1]),
+								board.square(opponentPiece.location()[0],
+								             opponentPiece.location()[1])))
 						.collect(Collectors.toList());
 
 		opponentPiecesPinningToKing.retainAll(attackingOpponentPieces);
@@ -83,7 +91,7 @@ public class BoardState {
 	public boolean isKingAttacked(Color attacked) {
 		var kingsSquare = board.getKing(attacked).square();
 		return board.getPiecesMovingTo(kingsSquare, Piece.class, attacked.opposite()).stream()
-				.anyMatch(piece -> piece instanceof Knight || noPiecesBetween(piece.square(),
-				                                                               kingsSquare));
+				.anyMatch(piece -> piece instanceof Knight || noPiecesBetween(
+						board.square(piece.location()[0], piece.location()[1]), kingsSquare));
 	}
 }

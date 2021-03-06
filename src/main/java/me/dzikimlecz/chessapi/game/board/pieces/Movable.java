@@ -1,6 +1,6 @@
 package me.dzikimlecz.chessapi.game.board.pieces;
 
-import me.dzikimlecz.chessapi.game.board.Square;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 
 import java.util.List;
 

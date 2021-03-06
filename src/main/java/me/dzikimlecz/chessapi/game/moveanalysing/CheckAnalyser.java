@@ -1,7 +1,8 @@
 package me.dzikimlecz.chessapi.game.moveanalysing;
 
 import me.dzikimlecz.chessapi.game.board.BoardState;
-import me.dzikimlecz.chessapi.game.board.Square;
+import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.pieces.King;
 import me.dzikimlecz.chessapi.game.board.pieces.Knight;
@@ -33,8 +34,8 @@ public class CheckAnalyser implements IMoveAnalyser {
 	public MoveData analyse(MoveData data) {
 		this.board = gameState.board();
 		this.boardState = board.getState();
-		Map<Piece, Square> variations = data.getVariations();
-		for (Piece piece : variations.keySet()) {
+		var variations = data.getVariations();
+		for (ChessPiece piece : variations.keySet()) {
 			if (lookForCheck(data)) {
 				var notation = new StringBuilder(data.notation());
 				notation.setLength(notation.length() - 1);
@@ -64,7 +65,7 @@ public class CheckAnalyser implements IMoveAnalyser {
 		var variations = data.getVariations();
 		var pieces = variations.keySet();
 		if (pieces.stream().noneMatch(e -> e instanceof Knight)) {
-			for (Piece piece : pieces) {
+			for (ChessPiece piece : pieces) {
 				if (piece instanceof King) continue;
 				var attackingSquare = variations.get(piece);
 				var squaresBetween = board.squaresBetween(attackingSquare, king.square());

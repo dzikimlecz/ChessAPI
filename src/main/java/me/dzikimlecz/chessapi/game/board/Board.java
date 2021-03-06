@@ -1,6 +1,8 @@
 package me.dzikimlecz.chessapi.game.board;
 
 import me.dzikimlecz.chessapi.game.board.pieces.*;
+import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -8,9 +10,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-
-import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
-import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
+import java.util.function.Consumer;
 
 /**
  * Chequerboard of dimensions 8x8 containing squares.
@@ -170,7 +170,7 @@ public class Board {
 	 * type and
 	 * color
 	 */
-	public List<? extends Piece> getPiecesMovingTo(char line,
+	public List<ChessPiece> getPiecesMovingTo(char line,
 	                                               int row,
 	                                               @Nullable Class<? extends Piece> type,
 	                                               @NotNull Color color) {
@@ -184,11 +184,11 @@ public class Board {
 	 * @return list off all pieces that can move to the specified location and are of the specified
 	 * type and color
 	 */
-	public List<? extends Piece> getPiecesMovingTo(Square square,
+	public List<ChessPiece> getPiecesMovingTo(Square square,
 	                                               @Nullable Class<? extends Piece> type,
 	                                               @NotNull Color color) {
 		if (square == null) return List.of();
-		List<Piece> pieces = new ArrayList<>();
+		List<ChessPiece> pieces = new ArrayList<>();
 		if (type == Piece.class) {
 			List.of(
 					Pawn.class,
@@ -209,10 +209,10 @@ public class Board {
 			for (int rowCursor = 1; rowCursor <= 8; rowCursor++) {
 				for (char lineCursor = 'a'; lineCursor <= 'h'; lineCursor++) {
 					var squareCursor = square(lineCursor, rowCursor);
-					Piece piece = squareCursor.piece();
-					if (piece == null) continue;
+					var piece = squareCursor.piece();
+					if (!(piece instanceof Movable)) continue;
 					if (piece.color() == color && piece.getClass() == type) {
-						for (int[] deltas : piece.moveDeltas()) {
+						for (int[] deltas : ((Movable) piece).moveDeltas()) {
 							try {
 								if (getSquareByDelta(squareCursor, deltas) == square) {
 									pieces.add(piece);
@@ -233,9 +233,7 @@ public class Board {
 	 * @param color color of the ordered King
 	 * @return King of player with specified color
 	 */
-	public King getKing(@NotNull Color color) {
-		return (color == WHITE) ? whiteKing : blackKing;
-	}
+	public abstract King getKing(@NotNull Color color);
 
 
 	/**

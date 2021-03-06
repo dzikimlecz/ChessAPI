@@ -1,6 +1,6 @@
 package me.dzikimlecz.chessapi.game.board.pieces;
 
-import me.dzikimlecz.chessapi.game.board.Color;
+import me.dzikimlecz.chessapi.game.board.square.Color;
 
 /**
  * Abstract class being an interface for working with pieces from outside of the chess API
@@ -38,4 +38,5 @@ public abstract class ChessPiece {
 	 * @return array of location {line, row}
 	 */
 	public abstract char[] location();
+
 }

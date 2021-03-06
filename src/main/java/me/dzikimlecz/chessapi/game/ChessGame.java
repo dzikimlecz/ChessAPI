@@ -3,8 +3,10 @@ package me.dzikimlecz.chessapi.game;
 import me.dzikimlecz.chessapi.ChessEventListener;
 import me.dzikimlecz.chessapi.DrawReason;
 import me.dzikimlecz.chessapi.game.board.Board;
-import me.dzikimlecz.chessapi.game.board.Color;
-import me.dzikimlecz.chessapi.game.board.Square;
+import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
+import me.dzikimlecz.chessapi.game.board.pieces.Movable;
+import me.dzikimlecz.chessapi.game.board.square.Color;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.board.pieces.Takeable;
 import me.dzikimlecz.chessapi.game.events.ChessEvent;
@@ -25,8 +27,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
-import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
+import static me.dzikimlecz.chessapi.game.board.square.Color.BLACK;
+import static me.dzikimlecz.chessapi.game.board.square.Color.WHITE;
 
 public final class ChessGame extends Thread {
 	private final IMoveAnalyser pawnExchangeAnalyser;
@@ -203,7 +205,7 @@ public final class ChessGame extends Thread {
 
 	private void handleMove(MoveData data) {
 		if (data.toFurtherCheck()) data.validate(enPassantCastlingValidator);
-		Map<Piece, Square> pieceMoves = data.getVariations();
+		Map<ChessPiece, Square> pieceMoves = data.getVariations();
 		if (pieceMoves.isEmpty()) {
 			listener.onIllegalMove();
 			return;
@@ -217,7 +219,7 @@ public final class ChessGame extends Thread {
 						.insert(1, 'x');
 				data.setNotation(newNotation.toString());
 			}
-			piece.moveTo(square);
+			((Movable)piece).moveTo(square);
 		});
 
 		pawnExchangeAnalyser.analyse(data);
@@ -250,7 +252,7 @@ public final class ChessGame extends Thread {
 		listener.onMoveHandled();
 	}
 
-	private void take(@NotNull Piece targetSquarePiece) {
+	private void take(@NotNull ChessPiece targetSquarePiece) {
 		if (!(targetSquarePiece instanceof Takeable))
 			throw new IllegalStateException("Cannot take non-takeable piece.");
 		((Takeable) targetSquarePiece).beTaken();

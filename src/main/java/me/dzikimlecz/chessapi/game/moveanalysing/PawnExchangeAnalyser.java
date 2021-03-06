@@ -1,6 +1,6 @@
 package me.dzikimlecz.chessapi.game.moveanalysing;
 
-import me.dzikimlecz.chessapi.game.board.Color;
+import me.dzikimlecz.chessapi.game.board.square.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.Pawn;
 import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
