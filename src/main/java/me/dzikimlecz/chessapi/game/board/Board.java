@@ -44,29 +44,8 @@ public abstract class Board {
 		this.boardState = new BoardState(this);
 	}
 
-	private void putPieces() {
-		//Puts Pawns
-		for (char line = 'a'; line <= 'h'; line++) {
-			new Pawn(WHITE, square(line, 2));
-			new Pawn(BLACK, square(line, 7));
-		}
-
-		List.of(square('a', 1), square('h', 1))
-				.forEach(square -> new Rook(WHITE, square));
-		List.of(square('a', 8), square('h', 8))
-				.forEach(square -> new Rook(BLACK, square));
-		List.of(square('b', 1), square('g', 1))
-				.forEach(square -> new Knight(WHITE, square));
-		List.of(square('b', 8), square('g', 8))
-				.forEach(square -> new Knight(BLACK, square));
-		List.of(square('c', 1), square('f', 1))
-				.forEach(square -> new Bishop(WHITE, square));
-		List.of(square('c', 8), square('f', 8))
-				.forEach(square -> new Bishop(BLACK, square));
-		new Queen(WHITE, square('d', 1));
-		new Queen(BLACK, square('d', 8));
-		new King(WHITE, square('e', 1));
-		new King(BLACK, square('e', 8));
+	public void applyOnSquares(Consumer<Square> fun) {
+		for (Square[] squares : theBoard) for (Square square : squares) fun.accept(square);
 	}
 
 	/**
