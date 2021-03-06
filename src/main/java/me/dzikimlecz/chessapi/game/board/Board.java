@@ -31,7 +31,10 @@ public abstract class Board {
 		return new DefaultBoard();
 	}
 	public static Board createEmpty() {
-		return null;
+		return new CustomisableBoard();
+	}
+	public static Board createFromFEN(String fen) {
+		return new CustomisableBoard(fen);
 	}
 
 	Board() {
