@@ -64,8 +64,12 @@ public class GamesManager<K> {
 		throw noGameException;
 	}
 
-	public void attachInfo(K gameKey, @NotNull GameInfo<K, ?> info) {
+	@Deprecated public void attachInfo(K gameKey, @NotNull GameInfo<K, ?> info) {
 		this.gameInfoMap.put(getGame(gameKey), info);
+	}
+
+	public void attachInfo(GameInfo<K, ?> info) {
+		gameInfoMap.put(getGame(info.getKey()), info);
 	}
 
 	public GameInfo<K, ?> getInfo(K gameKey) {
