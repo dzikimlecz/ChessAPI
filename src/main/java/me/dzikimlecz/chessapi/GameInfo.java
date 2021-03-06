@@ -4,6 +4,8 @@ import me.dzikimlecz.chessapi.game.board.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
 public class GameInfo<Key, Player> {
@@ -33,12 +35,12 @@ public class GameInfo<Key, Player> {
 		}
 	}
 
-	@Nullable public Player getWinner() {
-		return winner;
+	@NotNull public Player getWinner() {
+		return Objects.requireNonNull(winner, "Winner not set");
 	}
 
-	@Nullable public Player getLoser() {
-		return loser;
+	@NotNull public Player getLoser() {
+		return Objects.requireNonNull(loser, "Loser not set");
 	}
 
 	public Player getPlayer(@NotNull Color color) {
