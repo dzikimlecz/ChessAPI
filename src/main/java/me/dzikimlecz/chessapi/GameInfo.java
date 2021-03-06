@@ -21,7 +21,7 @@ public class GameInfo<Key, Player> {
 		this.blackPlayer = blackPlayer;
 	}
 
-	public Key getKey() {
+	public final Key getKey() {
 		return key;
 	}
 
@@ -35,7 +35,7 @@ public class GameInfo<Key, Player> {
 		}
 	}
 
-	@NotNull public Player getWinner() {
+	@NotNull public Player  getWinner() {
 		return Objects.requireNonNull(winner, "Winner not set");
 	}
 
@@ -43,7 +43,7 @@ public class GameInfo<Key, Player> {
 		return Objects.requireNonNull(loser, "Loser not set");
 	}
 
-	public Player getPlayer(@NotNull Color color) {
+	public final Player getPlayer(@NotNull Color color) {
 		return (color == WHITE) ? whitePlayer : blackPlayer;
 	}
 }
