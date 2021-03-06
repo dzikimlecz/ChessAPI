@@ -28,7 +28,7 @@ public abstract class ChessPiece {
 	 * @return color (black or white)
 	 * @see Color
 	 */
-	public Color color() {
+	public final Color color() {
 		return color;
 	}
 
@@ -39,4 +39,11 @@ public abstract class ChessPiece {
 	 */
 	public abstract char[] location();
 
+	@Override public final boolean equals(Object o) {
+		return super.equals(o);
+	}
+
+	@Override public final int hashCode() {
+		return super.hashCode();
+	}
 }
