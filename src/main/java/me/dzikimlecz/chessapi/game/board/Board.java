@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Consumer;
@@ -31,7 +32,10 @@ public abstract class Board {
 		return new DefaultBoard();
 	}
 	public static Board createEmpty() {
-		return null;
+		return new CustomisableBoard();
+	}
+	public static Board createFromFEN(String fen) {
+		return new CustomisableBoard(fen);
 	}
 
 	Board() {
@@ -211,8 +215,7 @@ public abstract class Board {
 	 * of the pieces colour and a chess notation of the piece
 	 * @return string representation of pieces on board
 	 */
-	@Override
-	public String toString() {
+	@Override public final String toString() {
 		var stringBuilder = new StringBuilder();
 		for (Square[] squares : theBoard) {
 			for (Square square : squares) {
@@ -224,6 +227,17 @@ public abstract class Board {
 			stringBuilder.append('\n');
 		}
 		return stringBuilder.toString();
+	}
+
+	@Override public final boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Board)) return false;
+		Board board = (Board) o;
+		return Arrays.deepEquals(theBoard, board.theBoard);
+	}
+
+	@Override public final int hashCode() {
+		return Arrays.deepHashCode(theBoard);
 	}
 
 	public BoardState getState() {
