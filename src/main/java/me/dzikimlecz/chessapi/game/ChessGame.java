@@ -1,7 +1,11 @@
 package me.dzikimlecz.chessapi.game;
 
+import me.dzikimlecz.chessapi.ChessEventListener;
 import me.dzikimlecz.chessapi.DrawReason;
+import me.dzikimlecz.chessapi.game.board.Board;
+import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.Square;
+import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.board.pieces.Takeable;
 import me.dzikimlecz.chessapi.game.events.ChessEvent;
 import me.dzikimlecz.chessapi.game.moveanalysing.*;
@@ -9,39 +13,42 @@ import me.dzikimlecz.chessapi.game.moveparsing.IMoveParser;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
 import me.dzikimlecz.chessapi.game.moveparsing.MoveParser;
 import me.dzikimlecz.chessapi.game.moveparsing.MoveValidator;
-import me.dzikimlecz.chessapi.game.movestoring.*;
-import me.dzikimlecz.chessapi.ChessEventListener;
-import me.dzikimlecz.chessapi.game.board.Board;
-import me.dzikimlecz.chessapi.game.board.Color;
-import me.dzikimlecz.chessapi.game.board.pieces.Piece;
-import org.jetbrains.annotations.Contract;
+import me.dzikimlecz.chessapi.game.movestoring.GameState;
+import me.dzikimlecz.chessapi.game.movestoring.ListMoveDatabase;
+import me.dzikimlecz.chessapi.game.movestoring.MoveData;
+import me.dzikimlecz.chessapi.game.movestoring.MoveDatabase;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static me.dzikimlecz.chessapi.game.board.Color.*;
+import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
+import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
-public class ChessGame extends Thread {
+public final class ChessGame extends Thread {
 	private final IMoveAnalyser pawnExchangeAnalyser;
+	private final MoveDatabase moveDatabase;
+	private final ChessEventListener listener;
+	private final IMoveParser parser;
+	private final IMoveValidator validator;
+	private final IDrawAnalyser drawAnalyser;
+	private final IMoveValidator enPassantCastlingValidator;
+	private final IMoveAnalyser checkAnalyser;
+
 	private final PawnExchangeProcessor pawnExchangeProcessor;
-	private MoveDatabase moveDatabase;
-	private ChessEventListener listener;
-	private IMoveParser parser;
-	private IMoveValidator validator;
-	private GameState gameState;
-	private Board board;
-	private IDrawAnalyser drawAnalyser;
-	private IMoveValidator enPassantCastlingValidator;
-	private IMoveAnalyser checkAnalyser;
-	private BlockingQueue<ChessEvent> events;
+	private final GameState gameState;
+	private final Board board;
+	private final BlockingQueue<ChessEvent> events;
 	private final AtomicBoolean hasStopped;
 
 	public ChessGame(ChessEventListener listener) {
 		this(listener, new ListMoveDatabase(), new MoveParser(), new MoveValidator(),
 		     new EnPassantCastlingValidator(), new CheckAnalyser(), new DrawAnalyser(),
 		     new PawnExchangeAnalyser());
+		setName("Game: %x".formatted(getId()));
 		checkAnalyser.setValidator(validator);
 		drawAnalyser.setValidator(validator);
 	}
@@ -55,7 +62,7 @@ public class ChessGame extends Thread {
 	                 IDrawAnalyser drawAnalyser,
 	                 IMoveAnalyser pawnExchangeAnalyser) {
 		super();
-		this.events = new LinkedBlockingQueue<>(100);
+		this.events = new ArrayBlockingQueue<>(100);
 		this.board = new Board();
 		this.gameState = new GameState();
 		gameState.setBoard(board);
@@ -85,8 +92,7 @@ public class ChessGame extends Thread {
 		drawAnalyser.setMoveDatabase(moveDatabase);
 	}
 
-	@Override
-	public void run() {
+	@Override public void run() {
 		try {
 			Thread.sleep(100);
 			while (isOngoing()) {
@@ -120,7 +126,6 @@ public class ChessGame extends Thread {
 	}
 
 	private void handleMove(MoveData data) {
-
 		if (data.toFurtherCheck()) data.validate(enPassantCastlingValidator);
 		Map<Piece, Square> pieceMoves = data.getVariations();
 		if (pieceMoves.isEmpty()) {
@@ -169,8 +174,7 @@ public class ChessGame extends Thread {
 		listener.onMoveHandled();
 	}
 
-	@Contract("null -> fail")
-	private void take(Piece targetSquarePiece) {
+	private void take(@NotNull Piece targetSquarePiece) {
 		if (!(targetSquarePiece instanceof Takeable))
 			throw new IllegalStateException("Cannot take non-takeable piece.");
 		((Takeable) targetSquarePiece).beTaken();
@@ -198,21 +202,14 @@ public class ChessGame extends Thread {
 	private void stopGame() {
 		if (!isInterrupted()) super.interrupt();
 		hasStopped.set(true);
-		moveDatabase = null;
-		listener = null;
-		parser = null;
-		validator = null;
-		gameState = null;
-		board = null;
-		drawAnalyser = null;
-		enPassantCastlingValidator = null;
-		checkAnalyser = null;
-		events = null;
 	}
 
-	@Override
-	public void interrupt() {
+	@Override public void interrupt() {
 		super.interrupt();
 		stopGame();
+	}
+
+	@Override public String toString() {
+		return "{Game: %s, Ongoing: %s}".formatted(getName(), hasStopped);
 	}
 }
