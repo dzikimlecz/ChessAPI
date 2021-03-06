@@ -18,37 +18,29 @@ import java.util.function.Consumer;
  * @see ChessPiece
  * @see Piece
  */
-public class Board {
+public abstract class Board {
 	/**
 	 * Array of squares being raw form of the board
 	 */
 	private final Square[][] theBoard;
 	private final AtomicReferenceArray<Square[]> board;
-	/**
-	 * White King, constant for a whole game
-	 */
-	private final King whiteKing;
-	/**
-	 * Black King, constant for a whole game
-	 */
-	private final King blackKing;
+
 	private final BoardState boardState;
 
-	/**
-	 * Initialises object, and puts pieces into the right squares
-	 */
-	public Board() {
+	public static Board create() {
+		return new DefaultBoard();
+	}
+	public static Board createEmpty() {
+		return null;
+	}
+
+	Board() {
 		this.theBoard = new Square[8][8];
 		board = new AtomicReferenceArray<>(theBoard);
 		//initializes all squares of the board
 		for (byte row = 0; row < 8; row++)
 			for (byte line = 0; line < 8; line++)
 				theBoard[row][line] = new Square(line, row, Color.values()[(line + row) % 2]);
-
-		//Puts every piece on its place
- 		this.putPieces();
-		this.whiteKing = (King) square('e', 1).piece();
-		this.blackKing = (King) square('e', 8).piece();
 		this.boardState = new BoardState(this);
 	}
 
@@ -76,8 +68,6 @@ public class Board {
 		new King(WHITE, square('e', 1));
 		new King(BLACK, square('e', 8));
 	}
-
-
 
 	/**
 	 * parses from chess notation to coordinates in the array of squares e.g. (a, 1 -> 0, 0)

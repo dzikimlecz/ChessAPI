@@ -141,7 +141,7 @@ public final class ChessGame extends Thread {
 	                 @NotNull IMoveAnalyser pawnExchangeAnalyser) {
 		super();
 		this.events = new ArrayBlockingQueue<>(100);
-		this.board = new Board();
+		this.board = Board.create();
 		this.gameState = new GameState();
 		gameState.setBoard(board);
 		gameState.setColor(WHITE);
