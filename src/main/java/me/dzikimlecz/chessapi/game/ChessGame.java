@@ -25,11 +25,13 @@ import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static me.dzikimlecz.chessapi.game.board.Color.BLACK;
 import static me.dzikimlecz.chessapi.game.board.Color.WHITE;
 
-public final class ChessGame extends Thread {
+public final class ChessGame implements Runnable {
+	private static final AtomicLong games = new AtomicLong();
 	private final IMoveAnalyser pawnExchangeAnalyser;
 	private final MoveDatabase moveDatabase;
 	private final ChessEventListener listener;
@@ -45,8 +47,13 @@ public final class ChessGame extends Thread {
 	private final BlockingQueue<ChessEvent> events;
 	private final AtomicBoolean hasStopped;
 
+
+	private final String name;
+	public String getName() {
+		return name;
+	}
+
 	public static final class Builder {
-		private static long games = 0;
 		private IMoveAnalyser pawnExchangeAnalyser;
 		private MoveDatabase moveDatabase;
 		private final ChessEventListener listener;
@@ -55,6 +62,7 @@ public final class ChessGame extends Thread {
 		private IDrawAnalyser drawAnalyser;
 		private IMoveValidator enPassantCastlingValidator;
 		private IMoveAnalyser checkAnalyser;
+		private String name;
 
 		public Builder(@NotNull ChessEventListener chessGameEventListener) {
 			this.listener = chessGameEventListener;
@@ -95,9 +103,13 @@ public final class ChessGame extends Thread {
 			return this;
 		}
 
+		public void name(String name) {
+			this.name = name;
+		}
+
 		public ChessGame build() {
 			validator = Objects.requireNonNullElseGet(validator, MoveValidator::new);
-			var game = new ChessGame(
+			return new ChessGame(
 					listener,
 					Objects.requireNonNullElseGet(moveDatabase, ListMoveDatabase::new),
 					Objects.requireNonNullElseGet(parser, MoveParser::new),
@@ -105,40 +117,40 @@ public final class ChessGame extends Thread {
 					Objects.requireNonNullElseGet(enPassantCastlingValidator,
 					                              EnPassantCastlingValidator::new),
 					Objects.requireNonNullElseGet(checkAnalyser, () -> {
-						var checkAnalyser = new CheckAnalyser();
-						checkAnalyser.setValidator(validator);
-						return checkAnalyser;
+						var checkAnalyser1 = new CheckAnalyser();
+						checkAnalyser1.setValidator(validator);
+						return checkAnalyser1;
 					}),
 					Objects.requireNonNullElseGet(drawAnalyser, () -> {
-						var drawAnalyser = new DrawAnalyser();
-						drawAnalyser.setValidator(validator);
-						return drawAnalyser;
+						var drawAnalyser1 = new DrawAnalyser();
+						drawAnalyser1.setValidator(validator);
+						return drawAnalyser1;
 					}),
-					Objects.requireNonNullElseGet(pawnExchangeAnalyser, PawnExchangeAnalyser::new)
+					Objects.requireNonNullElseGet(pawnExchangeAnalyser, PawnExchangeAnalyser::new),
+					Objects.requireNonNullElse(name, "Game: %x".formatted(Long.hashCode(games.getAndIncrement())))
 			);
-			game.setName("Game: %x".formatted(Long.hashCode(games++)));
-			return game;
 		}
+
 	}
 
 	public ChessGame(ChessEventListener listener) {
 		this(listener, new ListMoveDatabase(), new MoveParser(), new MoveValidator(),
 		     new EnPassantCastlingValidator(), new CheckAnalyser(), new DrawAnalyser(),
-		     new PawnExchangeAnalyser());
-		setName("Game: %x".formatted(getId()));
+		     new PawnExchangeAnalyser(), "Game: %x".formatted(games.getAndIncrement()));
 		checkAnalyser.setValidator(validator);
 		drawAnalyser.setValidator(validator);
 	}
 
 	private ChessGame(@NotNull ChessEventListener listener,
-	                 @NotNull MoveDatabase moveDatabase,
-	                 @NotNull IMoveParser parser,
-	                 @NotNull IMoveValidator validator,
-	                 @NotNull IMoveValidator enPassantCastlingValidator,
-	                 @NotNull IMoveAnalyser checkAnalyser,
-	                 @NotNull IDrawAnalyser drawAnalyser,
-	                 @NotNull IMoveAnalyser pawnExchangeAnalyser) {
+					  @NotNull MoveDatabase moveDatabase,
+					  @NotNull IMoveParser parser,
+					  @NotNull IMoveValidator validator,
+					  @NotNull IMoveValidator enPassantCastlingValidator,
+					  @NotNull IMoveAnalyser checkAnalyser,
+					  @NotNull IDrawAnalyser drawAnalyser,
+					  @NotNull IMoveAnalyser pawnExchangeAnalyser, String name) {
 		super();
+		this.name = name;
 		this.events = new ArrayBlockingQueue<>(100);
 		this.board = Board.create();
 		this.gameState = new GameState();
@@ -155,7 +167,6 @@ public final class ChessGame extends Thread {
 		this.pawnExchangeAnalyser = pawnExchangeAnalyser;
 		this.pawnExchangeProcessor = new PawnExchangeProcessor();
 		initProcessors();
-		start();
 	}
 
 	private void initProcessors() {
@@ -277,16 +288,11 @@ public final class ChessGame extends Thread {
 	}
 	
 	private void stopGame() {
-		if (!isInterrupted()) super.interrupt();
 		hasStopped.set(true);
 	}
 
-	@Override public void interrupt() {
-		super.interrupt();
-		stopGame();
-	}
 
 	@Override public String toString() {
-		return "{Game: %s, Ongoing: %s}".formatted(getName(), hasStopped);
+		return "{Game: %s, Ongoing: %s}".formatted(name, hasStopped);
 	}
 }
