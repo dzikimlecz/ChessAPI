@@ -287,7 +287,7 @@ public final class ChessGame implements Runnable {
 		return listener;
 	}
 	
-	private void stopGame() {
+	public void stopGame() {
 		hasStopped.set(true);
 	}
 

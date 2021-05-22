@@ -3,34 +3,42 @@ package me.dzikimlecz.chessapi;
 import me.dzikimlecz.chessapi.game.ChessGame;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
-import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.events.ChessEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class GamesManager<K> {
 	protected Map<K, ChessGame> games;
+	protected Map<K, Future<?>> futures;
 	protected Map<ChessGame, GameInfo<K, ?>> gameInfoMap;
+	private final ExecutorService executor;
 
 	public GamesManager() {
 		games = new HashMap<>();
 		gameInfoMap = new HashMap<>();
+		executor = Executors.newCachedThreadPool();
 	}
 
 	public void newGame(K gameKey, ChessEventListener listener) {
 		var game = new ChessGame(listener);
-		if(games.containsKey(gameKey) && games.get(gameKey).isOngoing())
+		if (games.containsKey(gameKey) && games.get(gameKey).isOngoing())
 			throw new IllegalStateException("Game on this gameKey is already ongoing");
+		futures.put(gameKey, executor.submit(game));
 		games.put(gameKey, game);
+
 	}
 
 	public void forceClose(K gameKey) {
 		var game = getGame(gameKey);
-		game.interrupt();
+		game.stopGame();
 		games.remove(gameKey);
-		System.gc();
 	}
 
 	public boolean close(K gameKey) {
@@ -97,5 +105,9 @@ public class GamesManager<K> {
 		} catch(InterruptedException e) {
 			game.listener().onIllegalMove();
 		}
+	}
+
+	public void shutdown() {
+		executor.shutdownNow();
 	}
 }
