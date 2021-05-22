@@ -15,14 +15,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class GamesManager<K> {
-	protected Map<K, ChessGame> games;
-	protected Map<K, Future<?>> futures;
-	protected Map<ChessGame, GameInfo<K, ?>> gameInfoMap;
+	protected final Map<K, ChessGame> games;
+	protected final Map<K, Future<?>> futures;
+	protected final Map<ChessGame, GameInfo<K, ?>> gameInfoMap;
 	private final ExecutorService executor;
 
 	public GamesManager() {
 		games = new HashMap<>();
 		gameInfoMap = new HashMap<>();
+		futures = new HashMap<>();
 		executor = Executors.newCachedThreadPool();
 	}
 
