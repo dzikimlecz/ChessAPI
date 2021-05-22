@@ -76,14 +76,17 @@ public class GamesManager<K> {
 		return gameInfoMap.get(getGame(gameKey));
 	}
 
-	public ChessPiece[][] read(K gameKey) {
-		ChessPiece[][] pieces = new Piece[8][8];
+	public List<List<ChessPiece>> read(K gameKey) {
+		var pieces = new ArrayList<List<ChessPiece>>(8);
 		ChessGame game = games.get(gameKey);
-		if (game == null) return null;
-		var board = game.board();
-		for (int row = 1; row <= 8; row++)
-			for (char line = 'a'; line <= 'h'; line++)
-				pieces[row - 1][line - 'a'] = board.square(line, row).piece();
+		if (game != null) {
+			var board = game.board();
+			for (int row = 1; row <= 8; row++) {
+				pieces.add(new ArrayList<>());
+				for (char line = 'a'; line <= 'h'; line++)
+					pieces.get(row - 1).set(line - 'a', board.square(line, row).piece());
+			}
+		}
 		return pieces;
 	}
 
