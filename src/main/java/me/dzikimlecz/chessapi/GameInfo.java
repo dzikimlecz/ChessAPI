@@ -35,7 +35,7 @@ public class GameInfo<Key, Player> {
 		}
 	}
 
-	@NotNull public Player  getWinner() {
+	@NotNull public Player getWinner() {
 		return Objects.requireNonNull(winner, "Winner not set");
 	}
 
