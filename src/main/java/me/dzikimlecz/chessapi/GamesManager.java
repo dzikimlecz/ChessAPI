@@ -73,10 +73,6 @@ public class GamesManager<K> {
 		throw noGameException;
 	}
 
-	@Deprecated public void attachInfo(K gameKey, @NotNull GameInfo<K, ?> info) {
-		this.gameInfoMap.put(getGame(gameKey), info);
-	}
-
 	public void attachInfo(GameInfo<K, ?> info) {
 		gameInfoMap.put(getGame(info.getKey()), info);
 	}
