@@ -203,7 +203,6 @@ public final class ChessGame implements Runnable {
 		events.put(event);
 	}
 
-
 	public Board board() {
 		return board;
 	}
@@ -227,7 +226,11 @@ public final class ChessGame implements Runnable {
 				var newNotation = new StringBuilder(data.notation()).insert(1, 'x');
 				data.setNotation(newNotation.toString());
 			}
-			((Movable)piece).moveTo(square);
+			try {
+				((Movable) piece).moveTo(square);
+			} catch (ClassCastException e) {
+				throw new IllegalStateException("Can't move non movable piece");
+			}
 		});
 
 		pawnExchangeAnalyser.analyse(data);
