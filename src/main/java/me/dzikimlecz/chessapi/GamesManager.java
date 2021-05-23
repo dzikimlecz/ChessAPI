@@ -87,9 +87,9 @@ public class GamesManager<K> {
 		if (game != null) {
 			var board = game.board();
 			for (int row = 1; row <= 8; row++) {
-				pieces.add(new ArrayList<>());
+				pieces.add(new ArrayList<>(8));
 				for (char line = 'a'; line <= 'h'; line++)
-					pieces.get(row - 1).set(line - 'a', board.square(line, row).piece());
+					pieces.get(row - 1).add(board.square(line, row).piece());
 			}
 		}
 		return pieces;
