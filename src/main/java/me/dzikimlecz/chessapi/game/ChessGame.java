@@ -6,7 +6,6 @@ import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Movable;
 import me.dzikimlecz.chessapi.game.board.Color;
-import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.board.pieces.Takeable;
 import me.dzikimlecz.chessapi.game.events.ChessEvent;
 import me.dzikimlecz.chessapi.game.moveanalysing.*;
@@ -20,7 +19,6 @@ import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 import me.dzikimlecz.chessapi.game.movestoring.MoveDatabase;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -46,6 +44,7 @@ public final class ChessGame implements Runnable {
 	private final Board board;
 	private final BlockingQueue<ChessEvent> events;
 	private final AtomicBoolean hasStopped;
+	private Thread thread;
 
 
 	private final String name;
@@ -181,6 +180,7 @@ public final class ChessGame implements Runnable {
 	}
 
 	@Override public void run() {
+		thread = Thread.currentThread();
 		try {
 			Thread.sleep(100);
 			while (isOngoing()) {
@@ -286,6 +286,8 @@ public final class ChessGame implements Runnable {
 	
 	public void stopGame() {
 		hasStopped.set(true);
+		if (!thread.isInterrupted())
+			thread.interrupt();
 	}
 
 	@Override public String toString() {
