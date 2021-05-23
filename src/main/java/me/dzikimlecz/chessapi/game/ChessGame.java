@@ -291,8 +291,7 @@ public final class ChessGame implements Runnable {
 		hasStopped.set(true);
 	}
 
-
 	@Override public String toString() {
-		return "{Game: %s, Ongoing: %s}".formatted(name, hasStopped);
+		return "{Game: %s, Ongoing: %s}".formatted(name, !hasStopped.get());
 	}
 }
