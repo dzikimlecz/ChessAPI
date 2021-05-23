@@ -235,11 +235,9 @@ public final class ChessGame implements Runnable {
 
 		pawnExchangeAnalyser.analyse(data);
 		var notation = data.notation();
-		if (notation.endsWith(":exchange")) {
-			@SuppressWarnings("all")
-			var piece = pieceMoves.keySet().stream().findFirst().get();
-			pawnExchangeProcessor.exchange(listener.onPawnExchange(), color(), pieceMoves.get(piece));
-		}
+		if (notation.endsWith(":exchange")) pieceMoves.keySet().stream().findFirst().ifPresent(piece ->
+				pawnExchangeProcessor.exchange(listener.onPawnExchange(), color(), pieceMoves.get(piece))
+		);
 
 		checkAnalyser.analyse(data);
 		moveDatabase.put(data);
@@ -250,17 +248,15 @@ public final class ChessGame implements Runnable {
 			listener.onMate(gameState.color());
 			stopGame();
 			return;
-		} else {
-			var drawReason = drawAnalyser.lookForDraw();
-			if (drawReason != null) {
-				listener.onMoveHandled();
-				listener.onDraw(drawReason);
-				stopGame();
-				return;
-			}
+		} else drawAnalyser.lookForDraw().ifPresent(reason -> {
+			listener.onMoveHandled();
+			listener.onDraw(reason);
+			stopGame();
+		});
+		if (isOngoing()) {
+			gameState.setColor(moveDatabase.turnColor());
+			listener.onMoveHandled();
 		}
-		gameState.setColor(moveDatabase.turnColor());
-		listener.onMoveHandled();
 	}
 
 	private void take(@NotNull ChessPiece targetSquarePiece) {
