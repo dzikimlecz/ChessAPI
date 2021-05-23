@@ -190,7 +190,7 @@ public final class ChessGame implements Runnable {
 							event.getNotation().contains(WHITE.name().toLowerCase()) ? WHITE : BLACK
 					);
 					case CLOSE -> stopGame();
-					case MOVE -> move(event.getNotation());
+					case MOVE -> handleMove(event.getNotation());
 				}
 			}
 		} catch(InterruptedException e) {
@@ -208,14 +208,13 @@ public final class ChessGame implements Runnable {
 		return board;
 	}
 
-	private void move(String notation) {
-		var moveData = validator.validate(parser.parse(notation));
-		handleMove(moveData);
+	private void handleMove(String notation) {
+		move(validator.validate(parser.parse(notation)));
 	}
 
-	private void handleMove(MoveData data) {
+	private void move(MoveData data) {
 		if (data.toFurtherCheck()) data.validate(enPassantCastlingValidator);
-		Map<ChessPiece, Square> pieceMoves = data.getVariations();
+		var pieceMoves = data.getVariations();
 		if (pieceMoves.isEmpty()) {
 			listener.onIllegalMove();
 			return;
@@ -225,8 +224,7 @@ public final class ChessGame implements Runnable {
 			var targetSquarePiece = square.piece();
 			if (targetSquarePiece != null) {
 				take(targetSquarePiece);
-				var newNotation = new StringBuilder(data.notation())
-						.insert(1, 'x');
+				var newNotation = new StringBuilder(data.notation()).insert(1, 'x');
 				data.setNotation(newNotation.toString());
 			}
 			((Movable)piece).moveTo(square);
