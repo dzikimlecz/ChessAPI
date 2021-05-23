@@ -44,15 +44,15 @@ public class DrawAnalyser implements IDrawAnalyser {
 	}
 
 	@Nullable
-	public DrawReason lookForDraw() {
+	public Optional<DrawReason> lookForDraw() {
 		this.board = gameState.board();
 		whiteMoves = moveDatabase.getAllMoves(WHITE);
 		blackMoves = moveDatabase.getAllMoves(BLACK);
-		if (noMovesWithPawnDuring50Moves()) return DrawReason.FIFTY_MOVES_WITHOUT_PAWN;
-		if (triplePositionRepeat()) return DrawReason.TRIPLE_POSITION_REPEAT;
-		if (staleMate()) return DrawReason.STALE_MATE;
-		if (deadPosition()) return DrawReason.LACK_OF_PIECES;
-		return null;
+		if (noMovesWithPawnDuring50Moves()) return Optional.of(DrawReason.FIFTY_MOVES_WITHOUT_PAWN);
+		if (triplePositionRepeat()) return Optional.of(DrawReason.TRIPLE_POSITION_REPEAT);
+		if (staleMate()) return Optional.of(DrawReason.STALE_MATE);
+		if (deadPosition()) return Optional.of(DrawReason.LACK_OF_PIECES);
+		return Optional.empty();
 	}
 
 	//fixme 23.12.2020: It's a workaround, checks if three LAST positions were the same based on
