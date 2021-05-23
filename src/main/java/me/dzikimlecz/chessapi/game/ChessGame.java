@@ -261,7 +261,7 @@ public final class ChessGame implements Runnable {
 
 	private void take(@NotNull ChessPiece targetSquarePiece) {
 		if (!(targetSquarePiece instanceof Takeable))
-			throw new IllegalStateException("Cannot take non-takeable piece.");
+			throw new IllegalArgumentException("Cannot take non-takeable piece.");
 		((Takeable) targetSquarePiece).beTaken();
 	}
 
