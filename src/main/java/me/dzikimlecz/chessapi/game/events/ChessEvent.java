@@ -21,8 +21,8 @@ public class ChessEvent {
 	public ChessEvent(String notation) {
 		this.notation = notation;
 		if (movePattern.matcher(notation).matches()) type = MOVE;
-		else if(closePattern.matcher(notation).matches()) type = CLOSE;
-		else if(drawRequestPattern.matcher(notation).matches()) type = DRAW_REQUEST;
+		else if (closePattern.matcher(notation).matches()) type = CLOSE;
+		else if (drawRequestPattern.matcher(notation).matches()) type = DRAW_REQUEST;
 		else throw new IllegalArgumentException("Illegal notation");
 	}
 
