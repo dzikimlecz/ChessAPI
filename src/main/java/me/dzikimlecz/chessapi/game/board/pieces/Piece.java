@@ -49,7 +49,7 @@ public abstract class Piece extends ChessPiece implements Movable {
 	public void moveTo(Square square) {
 		boolean pieceMoved = square.putPiece(this);
 		if (!pieceMoved)
-			throw new IllegalArgumentException("Could not move to square: " + square.toString());
+			throw new IllegalArgumentException("Could not move to square: " + square);
 		if (currentLocation != null) currentLocation.putPiece(null);
 		currentLocation = square;
 		deltas.clear();
