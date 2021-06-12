@@ -80,8 +80,7 @@ public class DrawAnalyser implements IDrawAnalyser {
 		Map<ChessPiece, Square> possibleResponses = new HashMap<>();
 		for (ChessPiece piece : pieces) {
 			var pieceSquare = board.square(piece.location()[0], piece.location()[1]);
-			if (!(piece instanceof Movable)) continue;
-			var movablePiece = (Movable) piece;
+			if (!(piece instanceof Movable movablePiece)) continue;
 			var moveDeltas = movablePiece.moveDeltas();
 			for (int[] moveDelta : moveDeltas)
 				possibleResponses.put(piece, board.getSquareByDelta(pieceSquare, moveDelta));

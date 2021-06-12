@@ -61,13 +61,11 @@ public class MoveParser implements IMoveParser {
 		boolean isCastlingShort = notation.length() == 3;
 		final int row = (color == Color.WHITE) ? 1 : 8;
 		var piece = board.square('e', row).piece();
-		if (!(piece instanceof King)) throw illegalMove;
-		var king = (King) piece;
+		if (!(piece instanceof King king)) throw illegalMove;
 
 		char rookLine = (isCastlingShort) ? 'h' : 'a';
 		piece = board.square(rookLine, row).piece();
-		if (!(piece instanceof Rook)) throw illegalMove;
-		var rook = (Rook) piece;
+		if (!(piece instanceof Rook rook)) throw illegalMove;
 
 		char newKingLine = (isCastlingShort) ? 'g' : 'c';
 		char newRookLine = (isCastlingShort) ? 'f' : 'd';

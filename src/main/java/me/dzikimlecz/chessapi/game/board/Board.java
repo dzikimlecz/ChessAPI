@@ -230,8 +230,7 @@ public abstract class Board {
 
 	@Override public final boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Board)) return false;
-		Board board = (Board) o;
+		if (!(o instanceof Board board)) return false;
 		return Arrays.deepEquals(theBoard, board.theBoard);
 	}
 

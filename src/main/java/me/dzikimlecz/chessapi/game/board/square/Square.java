@@ -85,8 +85,7 @@ public class Square {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Square)) return false;
-		Square square = (Square) o;
+		if (!(o instanceof Square square)) return false;
 		return line == square.line && row == square.row && color == square.color && Objects.equals(
 				containedPiece, square.containedPiece);
 	}
