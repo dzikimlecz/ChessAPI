@@ -9,6 +9,6 @@ public interface ChessEventListener {
 	default void onMoveHandled() {}
 	default void onCheck(Color checked) {}
 	default void onIllegalMove() {}
-	default boolean onDrawRequest(Color requestor) {return false;}
+	default boolean onDrawRequest(Color requester) {return false;}
 	Class<? extends Piece> onPawnExchange();
 }
