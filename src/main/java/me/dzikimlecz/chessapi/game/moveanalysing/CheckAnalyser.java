@@ -33,14 +33,11 @@ public class CheckAnalyser implements IMoveAnalyser {
 	public MoveData analyse(MoveData data) {
 		this.board = gameState.board();
 		this.boardState = board.getState();
-		var variations = data.getVariations();
-		for (ChessPiece piece : variations.keySet()) {
-			if (lookForCheck(data)) {
-				var notation = new StringBuilder(data.notation());
-				notation.setLength(notation.length() - 1);
-				notation.append((lookForMate(data)) ? '#' : '+');
-				data.setNotation(notation.toString());
-			}
+		if (lookForCheck(data)) {
+			var notation = new StringBuilder(data.notation());
+			notation.setLength(notation.length() - 1);
+			notation.append((lookForMate(data)) ? '#' : '+');
+			data.setNotation(notation.toString());
 		}
 		return data;
 	}
