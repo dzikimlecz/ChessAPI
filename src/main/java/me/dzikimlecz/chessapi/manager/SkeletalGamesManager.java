@@ -1,7 +1,6 @@
 package me.dzikimlecz.chessapi.manager;
 
 import me.dzikimlecz.chessapi.ChessEventListener;
-import me.dzikimlecz.chessapi.GameInfo;
 import me.dzikimlecz.chessapi.game.ChessGame;
 import me.dzikimlecz.chessapi.game.board.Color;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;

@@ -1,17 +1,16 @@
 package me.dzikimlecz.chessapi.game.moveanalysing;
 
+import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.BoardState;
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
-import me.dzikimlecz.chessapi.game.board.square.Square;
-import me.dzikimlecz.chessapi.game.board.Board;
 import me.dzikimlecz.chessapi.game.board.pieces.King;
 import me.dzikimlecz.chessapi.game.board.pieces.Knight;
 import me.dzikimlecz.chessapi.game.board.pieces.Piece;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
 import me.dzikimlecz.chessapi.game.movestoring.GameState;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CheckAnalyser implements IMoveAnalyser {

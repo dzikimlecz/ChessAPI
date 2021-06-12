@@ -3,14 +3,9 @@ package me.dzikimlecz.chessapi.manager;
 import me.dzikimlecz.chessapi.ChessEventListener;
 import me.dzikimlecz.chessapi.GameInfo;
 import me.dzikimlecz.chessapi.game.ChessGame;
-import me.dzikimlecz.chessapi.game.board.Color;
-import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.events.ChessEvent;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

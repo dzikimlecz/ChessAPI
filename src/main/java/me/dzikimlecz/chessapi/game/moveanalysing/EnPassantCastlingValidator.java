@@ -2,7 +2,6 @@ package me.dzikimlecz.chessapi.game.moveanalysing;
 
 import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 import me.dzikimlecz.chessapi.game.board.pieces.Pawn;
-import me.dzikimlecz.chessapi.game.board.pieces.Piece;
 import me.dzikimlecz.chessapi.game.moveparsing.IMoveValidator;
 import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 import me.dzikimlecz.chessapi.game.movestoring.MoveDatabase;
