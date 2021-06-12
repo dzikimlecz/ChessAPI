@@ -10,6 +10,8 @@ import me.dzikimlecz.chessapi.game.movestoring.MoveData;
 
 import java.util.ArrayList;
 
+import static me.dzikimlecz.chessapi.game.moveparsing.MoveValidator.ValidationResult.*;
+
 public class MoveValidator implements IMoveValidator {
 	private GameState gameState;
 
@@ -33,38 +35,39 @@ public class MoveValidator implements IMoveValidator {
 
 		for (var iterator = moveVariations.keySet().iterator(); iterator.hasNext();) {
 			var piece = iterator.next();
-			int status = validStatus(piece, moveVariations.get(piece));
-			if (status == 0) iterator.remove();
-			else if (status < 0) moveData.setToFurtherCheck(true);
+			var status = validStatus(piece, moveVariations.get(piece));
+			if (status == INVALID) iterator.remove();
+			else if (status == CHECK) moveData.setToFurtherCheck(true);
 		}
 		var values = new ArrayList<>(moveVariations.values());
+		// checks if there are multiple pieces supposed to move to the same square after the validation
 		boolean ambiguous = values.stream()
 				.anyMatch(square -> values.indexOf(square) != values.lastIndexOf(square));
 		if (ambiguous) moveVariations.clear();
 		return moveData;
 	}
 
-	private int validStatus(ChessPiece piece, Square square) {
+	private ValidationResult validStatus(ChessPiece piece, Square square) {
 
-		if (boardState.isSquareOccupied(square, color)) return 0;
+		if (boardState.isSquareOccupied(square, color)) return INVALID;
 
 		if (!(piece instanceof Knight)
 				&& boardState.anyPiecesBetween(
 						board.square(piece.location()[0], piece.location()[1]), square))
-			return 0;
+			return INVALID;
 
 		if (!(piece instanceof King) && (boardState.isPieceDefendingKing(piece) ||
-				boardState.isKingAttacked(color))) return 0;
+				boardState.isKingAttacked(color))) return INVALID;
 
 		if (piece instanceof Pawn) return validatePawnMove((Pawn) piece, square);
 
 		if (piece instanceof King
-				&& boardState.isSquareAttacked(square, color))  return 0;
+				&& boardState.isSquareAttacked(square, color))  return INVALID;
 
-		return 1;
+		return VALID;
 	}
 
-	private int validatePawnMove(Pawn pawn, Square square) {
+	private ValidationResult validatePawnMove(Pawn pawn, Square square) {
 		final int rowDelta = (color == Color.WHITE) ? 1 : -1;
 		final int opponentsFirstFreeRow = (color == Color.BLACK) ? 3 : 6;
 		var pawnSquare = pawn.square();
@@ -72,20 +75,20 @@ public class MoveValidator implements IMoveValidator {
 		//taking move:
 		if (pawnSquare.line() != square.line()) {
 			var piece = square.piece();
-			if(piece instanceof King) return 0;
+			if(piece instanceof King) return VALID;
 			if (piece == null) {
 				var pieceBefore = squareBefore.piece();
 				boolean valid = pieceBefore instanceof Pawn
 						&& pieceBefore.color() == pawn.color().opposite()
 						&& square.row() == opponentsFirstFreeRow;
-				return valid ? -1 : 0;
+				return valid ? CHECK : INVALID;
 			}
-			return 1;
+			return VALID;
 		}
 		//
 		else if (Math.abs(pawnSquare.row() - square.row()) == 2 && squareBefore.piece() != null)
-			return 0;
-		return 1;
+			return INVALID;
+		return VALID;
 	}
 
 	private MoveData validateCastling(MoveData moveData) {
@@ -101,5 +104,11 @@ public class MoveValidator implements IMoveValidator {
 		if (invalid) map.clear();
 		else moveData.setToFurtherCheck(true);
 		return moveData;
+	}
+
+	protected enum ValidationResult {
+		VALID,
+		INVALID,
+		CHECK,
 	}
 }
