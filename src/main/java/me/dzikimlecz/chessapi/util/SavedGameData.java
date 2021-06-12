@@ -5,14 +5,8 @@ import me.dzikimlecz.chessapi.game.board.pieces.ChessPiece;
 
 import java.text.MessageFormat;
 
-public class SavedGameData {
-	private final ChessPiece[][] board;
-	private final Color turn;
-
-	public SavedGameData(ChessPiece[][] board, Color turn) {
-		this.board = board;
-		this.turn = turn;
-	}
+public record SavedGameData(ChessPiece[][] board,
+							Color turn) {
 
 	public String toJSON() {
 		var builder = new StringBuilder("{\n");
@@ -25,7 +19,7 @@ public class SavedGameData {
 				ChessPiece chessPiece = chessPieces[j];
 				if (chessPiece == null)
 					builder.append("null");
-				else builder.append('"').append(chessPiece.toString())
+				else builder.append('"').append(chessPiece)
 						.append(chessPiece.color().name().charAt(0)).append('"');
 				if (j != chessPiecesLength - 1)
 					builder.append(", ");
