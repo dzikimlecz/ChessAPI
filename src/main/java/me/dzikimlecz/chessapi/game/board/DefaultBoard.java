@@ -1,6 +1,7 @@
 package me.dzikimlecz.chessapi.game.board;
 
 import me.dzikimlecz.chessapi.game.board.pieces.*;
+import me.dzikimlecz.chessapi.game.board.square.Square;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -33,21 +34,19 @@ class DefaultBoard extends Board {
 			new Pawn(BLACK, square(line, 7));
 		}
 
-		List.of(square('a', 1), square('h', 1))
-				.forEach(square -> new Rook(WHITE, square));
-		List.of(square('a', 8), square('h', 8))
-				.forEach(square -> new Rook(BLACK, square));
-		List.of(square('b', 1), square('g', 1))
-				.forEach(square -> new Knight(WHITE, square));
-		List.of(square('b', 8), square('g', 8))
-				.forEach(square -> new Knight(BLACK, square));
-		List.of(square('c', 1), square('f', 1))
-				.forEach(square -> new Bishop(WHITE, square));
-		List.of(square('c', 8), square('f', 8))
-				.forEach(square -> new Bishop(BLACK, square));
+		for (var entry : Map.of(1, WHITE, 8, BLACK).entrySet()) {
+			var line = entry.getKey();
+			var color = entry.getValue();
+			for (char c : new char[]{'c', 'f'})
+				new Bishop(color, square(c, line));
+			for (char c : new char[]{'a', 'h'})
+				new Rook(color, square(c, line));
+			for (char c : new char[]{'b', 'g'})
+				new Knight(color, square(c, line));
+		}
 		new Queen(WHITE, square('d', 1));
-		new Queen(BLACK, square('d', 8));
 		new King(WHITE, square('e', 1));
+		new Queen(BLACK, square('d', 8));
 		new King(BLACK, square('e', 8));
 	}
 }
