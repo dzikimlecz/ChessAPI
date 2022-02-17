@@ -12,19 +12,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public final class DefaultGamesManager<K> extends SkeletalGamesManager<K> {
-	protected final Map<K, Future<?>> futures;
 	protected final Map<ChessGame, GameInfo<K, ?>> gameInfoMap;
 	private final ExecutorService executor;
 
 	DefaultGamesManager() {
 		gameInfoMap = new HashMap<>();
-		futures = new HashMap<>();
-		executor = Executors.newCachedThreadPool();
+		executor = Executors.newFixedThreadPool(6);
 	}
 
 	@Override public ChessGame newGame(K gameKey, ChessEventListener listener) {
 		var game = super.newGame(gameKey, listener);
-		futures.put(gameKey, executor.submit(game));
+		executor.execute(game);
 		return game;
 	}
 
