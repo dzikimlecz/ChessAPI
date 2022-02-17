@@ -150,7 +150,7 @@ public final class ChessGame implements Runnable {
 					  @NotNull IMoveAnalyser pawnExchangeAnalyser, String name) {
 		super();
 		this.name = name;
-		this.events = new ArrayBlockingQueue<>(100);
+		this.events = new ArrayBlockingQueue<>(50);
 		this.board = Board.create();
 		this.gameState = new GameState();
 		gameState.setBoard(board);
@@ -182,7 +182,6 @@ public final class ChessGame implements Runnable {
 	@Override public void run() {
 		thread = Thread.currentThread();
 		try {
-			Thread.sleep(100);
 			while (isOngoing()) {
 				var event = events.take();
 				switch (event.getType()) {
