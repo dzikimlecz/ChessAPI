@@ -1,15 +1,15 @@
 # ChessAPI
-Simple api for managing chess games
-## How to
+Simple api for managing chess games.
+## Usage
 Firstly you need to create instance of 
-[```GameManager```](https://github.com/dzikimlecz/ChessAPI/blob/main/src/main/java/me/dzikimlecz/chessapi/GamesManager.java), or if it's needed, of your own subclass of it.<br>
-Generic type parameter ```Key``` is used as a key for accessing games managed by the object.<br>
-*Note: Type given as key **must** override both equals, and hashCode methods. It's required, due to internal use of HashMaps*<br>
-Secondly you will need an implementation of
+[```GameManager```](https://github.com/dzikimlecz/ChessAPI/blob/main/src/main/java/me/dzikimlecz/chessapi/GamesManager.java).  
+Generic type parameter ```Key``` is used as a key for accessing games managed by the object.  
+*Note: Type given as key **must** override both equals, and hashCode methods. It's required, due to internal use of HashMaps*  
+Then you need an implementation of
 [```ChessEventListener```](https://github.com/dzikimlecz/ChessAPI/blob/main/src/main/java/me/dzikimlecz/chessapi/ChessEventListener.java).
-One game per one instance is the recommended technique, although if the client deals, with synchronisation it's not required.
-There are also more optional features, but to create basic working implementation that's all of client code
-### Most Basic Implementation
+One game per one instance is the recommended technique, although if the client deals with synchronisation it's not required.
+There are also other optional features.
+### Very Basic Implementation
     
     class Listener implements ChessEventListener {
         private final GamesManager<String> manager;
@@ -63,7 +63,7 @@ There are also more optional features, but to create basic working implementatio
 ### Useful features
 Class 
 [GameInfo](https://github.com/dzikimlecz/ChessAPI/blob/main/src/main/java/me/dzikimlecz/chessapi/GameInfo.java)
-lets you save info about players in the game, quite useful.
+lets you save info about players in the game.
 #### Example
     manager.attachInfo(new GameInfo<>("Coffee", 21, 37));
 * First parameter - gameKey
